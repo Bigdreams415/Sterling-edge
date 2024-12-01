@@ -22,6 +22,15 @@
 }
 
 /* Desktop Navigation */
+/* Desktop Navigation Adjustments */
+#desktop-nav {
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: space-between; /* Space between logo and links */
+    flex: 1;
+    margin-left: 40px; /* Add spacing between logo and nav links */
+}
+
 #desktop-nav ul {
     display: flex;
     list-style: none;
@@ -44,10 +53,18 @@
     color: #ff6347;
 }
 
-/* Auth Buttons */
-.auth-buttons {
+/* Align Auth Buttons */
+.desktop-auth {
     display: flex;
+    align-items: center;
+    margin-left: 20px; /* Spacing between links and buttons */
 }
+
+
+/* Auth Buttons */
+/* .auth-buttons {
+    display: flex;
+} */
 
 .auth-buttons .btn {
     margin-left: 10px;
@@ -116,6 +133,17 @@
     color: #ff6347;
 }
 
+/* Auth Buttons in Mobile Menu */
+#mobile-nav .auth-buttons {
+    margin-top: 20px;
+    flex-direction: column;
+}
+
+#mobile-nav .auth-buttons .btn {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
 /* Close Button */
 #mobile-nav .close-btn {
     position: absolute;
@@ -159,15 +187,11 @@
     #mobile-nav {
         display: block;
     }
-    .auth-buttons desktop-auth{
-        display: none;
-    }
 }
-
 
 /* Hero Section */
 .hero-section {
-    background-image: url('images/pexels-anntarazevich-14751274.jpg'); /* Replace with your image path */
+    background-image: url('images/pexels-anntarazevich-14751274.jpg');  
     background-size: cover;
     background-position: center;
     color: #fff;

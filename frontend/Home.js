@@ -47,13 +47,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const openMobileNav = () => {
         mobileNav.style.left = "0";
         overlay.classList.add("active");
-        hamburgerMenu.style.display = "none"; // Hide hamburger menu when open
     };
 
     const closeMobileNav = () => {
         mobileNav.style.left = "-100%";
         overlay.classList.remove("active");
-        hamburgerMenu.style.display = "flex"; // Show hamburger menu when closed
     };
 
     hamburgerMenu.addEventListener("click", openMobileNav);
