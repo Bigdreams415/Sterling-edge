@@ -12,12 +12,12 @@ const app = express();
 
 
 // Serve static files from the frontend folder
-app.use(express.static(path.join(__dirname, '../frontend')));
+// app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Route to serve home.html for the homepage
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/Home.html'));
-});
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../frontend/Home.html'));
+// });
 // Middleware
 app.use(express.json());
 app.use(bodyParser.json());

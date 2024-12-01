@@ -10,7 +10,12 @@
     <!-- Navigation Bar -->
     <header class="navbar">
         <div class="logo">Sterling Edge</div>
-        <nav>
+        <div class="hamburger-menu" id="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <nav id="desktop-nav">
             <ul>
                 <li><a href="#real-estate">Real Estate</a></li>
                 <li><a href="#crypto">Crypto</a></li>
@@ -19,11 +24,25 @@
                 <li><a href="#trusted-broker">Trusted Broker</a></li>
             </ul>
         </nav>
-        <div class="auth-buttons">
+        <div class="auth-buttons desktop-auth">
             <a href="login.html" class="btn login-btn">Login</a>
             <a href="signup.html" class="btn signup-btn">Sign Up</a>
         </div>
+        <nav id="mobile-nav">
+            <span class="close-btn" id="close-btn">&times;</span>
+            <ul>
+                <li><a href="#real-estate">Real Estate</a></li>
+                <li><a href="#crypto">Crypto</a></li>
+                <li><a href="#precious-metals">Precious Metals</a></li>
+                <li><a href="#resources">Resources</a></li>
+                <li><a href="#trusted-broker">Trusted Broker</a></li>
+            </ul>
+        </nav>
+        <div class="overlay" id="overlay"></div>
     </header>
+    
+    
+    
 
     <!-- Hero Section -->
     <section id="hero" class="hero-section">
@@ -34,6 +53,7 @@
         </div>
     </section>
 
+    
     <!-- Investment Categories Section -->
     <section id="investment-categories" class="content-section">
         <h2>Explore Investment Opportunities</h2>
@@ -61,7 +81,7 @@
             
             <!-- Precious Metals Card -->
             <div class="category-card" id="precious-metals">
-                <img src="images/precious-metals.jpg" alt="Precious Metals">
+                <img src="images/1000-grams-pure-silver-bars-and-coins.webp" alt="Precious Metals">
                 <div class="category-info">
                     <h3>Precious Metals</h3>
                     <p>Stable and reliable investments in gold, silver, and other metals.</p>
@@ -124,86 +144,216 @@
         </div>
     </section>
 
-    <!-- Featured Assets Section -->
-    <section id="featured-assets" class="content-section">
-        <h2>Explore Our Featured Assets</h2>
-        <p>Diversify your portfolio with top assets in Real Estate, Cryptocurrency, and Precious Metals.</p>
-        <div class="assets-container">
-            
-            <!-- Real Estate Asset Card -->
-            <div class="asset-card">
-                <img src="images/real-estate.jpg" alt="Real Estate" class="asset-image">
-                <h3>Real Estate</h3>
-                <p>Invest in property-backed assets and build long-term wealth through real estate markets worldwide.</p>
-                <button class="btn explore-btn">Explore Real Estate</button>
-            </div>
-
-            <!-- Cryptocurrency Asset Card -->
-            <div class="asset-card">
-                <img src="images/cryptocurrency.jpg" alt="Cryptocurrency" class="asset-image">
-                <h3>Cryptocurrency</h3>
-                <p>Tap into the future of finance with top cryptocurrencies, including Bitcoin, Ethereum, and more.</p>
-                <button class="btn explore-btn">Explore Cryptocurrency</button>
-            </div>
-
-            <!-- Precious Metals Asset Card -->
-            <div class="asset-card">
-                <img src="images/precious-metals.jpg" alt="Precious Metals" class="asset-image">
-                <h3>Precious Metals</h3>
-                <p>Secure your investments with time-tested assets like gold, silver, and other precious metals.</p>
-                <button class="btn explore-btn">Explore Precious Metals</button>
-            </div>
-
+    <section class="copy-trading-section">
+        <h2 class="section-title">Discover the Power of Copy Trading</h2>
+        <p class="section-description">
+          Learn how you can replicate the trades of successful investors and take the guesswork out of trading. Watch our videos to understand the process!
+        </p>
+        
+        <div class="video-container">
+          <div class="video-item">
+            <video src="images/video-1.mp4" autoplay muted loop></video>
+            <p class="video-text">"Master the Basics: What is Copy Trading?"</p>
+          </div>
+          <div class="video-item">
+            <video src="images/video-2.mp4" autoplay muted loop></video>
+            <p class="video-text">"How to Choose the Best Traders to Copy"</p>
+          </div>
+          <div class="video-item">
+            <video src="images/video-3.mp4" autoplay muted loop></video>
+            <p class="video-text">"Maximize Returns with Copy Trading Strategies"</p>
+          </div>
         </div>
     </section>
+      
 
-    <!-- Start Trading in 4 Steps Section -->
+
+    <!-- investment option section -->
+    <section id="investment-options" class="investment-options-section">
+        <div class="container">
+            <h2 class="section-title">Explore Investment Opportunities</h2>
+            <p class="section-subtext">
+                Discover investment options in stocks, real estate, and more with detailed insights to help you make informed decisions.
+            </p>
+    
+            <div class="options-container">
+                <div class="option">
+                    <div class="icon-box">
+                        <img src="images/stocks-graphic-in-a-circle-svgrepo-com.svg" alt="Stocks" />
+                    </div>
+                    <h3>Stocks</h3>
+                    <p>
+                        Trade top-performing stocks and stay updated with real-time market insights to maximize your returns.
+                    </p>
+                </div>
+    
+                <div class="option">
+                    <div class="icon-box">
+                        <img src="images/real-estate-home-svgrepo-com.svg" alt="Real Estate" />
+                    </div>
+                    <h3>Real Estate</h3>
+                    <p>
+                        Invest in lucrative real estate opportunities with our expert-curated listings and property analysis.
+                    </p>
+                </div>
+    
+                <div class="option">
+                    <div class="icon-box">
+                        <img src="images/bitcoin-svgrepo-com.svg" alt="Cryptocurrency" />
+                    </div>
+                    <h3>Cryptocurrency</h3>
+                    <p>
+                        Dive into the world of crypto with high-potential coins and digital assets that can grow your wealth.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+
     <section id="start-trading" class="start-trading-section">
-        <h2>Start Trading in 4 Simple Steps</h2>
+        <h2 class="section-title">Start Trading in 4 Simple Steps</h2>
         <div class="steps-container">
-            <!-- Step 1: Register -->
-            <div class="step" data-step="1">
+            <!-- Step 1 -->
+            <div class="step">
+                <div class="video-box">
+                    <video src="images/reg.mp4" autoplay muted loop></video>
+                </div>
                 <h3>1. Register</h3>
                 <p>Create your account in just a few clicks.</p>
-                <div class="video-container" id="register-video">
-                    <!-- Placeholder for Register video -->
-                    <p>Register Video</p>
-                </div>
             </div>
-
-            <!-- Step 2: Verify -->
-            <div class="step" data-step="2">
+    
+            <!-- Step 2 -->
+            <div class="step">
+                <div class="video-box">
+                    <video src="images/verify.mp4" autoplay muted loop></video>
+                </div>
                 <h3>2. Verify</h3>
                 <p>Confirm your identity for added security.</p>
-                <div class="video-container" id="verify-video">
-                    <!-- Placeholder for Verify video -->
-                    <p>Verify Video</p>
-                </div>
             </div>
-
-            <!-- Step 3: Fund -->
-            <div class="step" data-step="3">
+    
+            <!-- Step 3 -->
+            <div class="step">
+                <div class="video-box">
+                    <video src="images/fund.mp4" autoplay muted loop></video>
+                </div>
                 <h3>3. Fund</h3>
                 <p>Deposit funds securely to start trading.</p>
-                <div class="video-container" id="fund-video">
-                    <!-- Placeholder for Fund video -->
-                    <p>Fund Video</p>
-                </div>
             </div>
-
-            <!-- Step 4: Trade -->
-            <div class="step" data-step="4">
+    
+            <!-- Step 4 -->
+            <div class="step">
+                <div class="video-box">
+                    <video src="images/trade.mp4" autoplay muted loop></video>
+                </div>
                 <h3>4. Trade</h3>
                 <p>Begin trading and manage your portfolio.</p>
-                <div class="video-container" id="trade-video">
-                    <!-- Placeholder for Trade video -->
-                    <p>Trade Video</p>
+            </div>
+        </div>
+    </section>
+    
+
+    <section id="trusted-by" class="trusted-by-section">
+        <div class="trusted-content">
+            <!-- Title and Subtext -->
+            <h2 class="section-title">Trusted by Industry Leaders</h2>
+            <p class="section-subtext">
+                Join thousands of investors and top companies worldwide who trust us with their investments.
+            </p>
+    
+            <!-- Metrics Section -->
+            <div class="metrics-container">
+                <div class="metric">
+                    <h3 data-target="10000" class="count">0</h3>
+                    <p>Active Investors</p>
+                </div>
+                <div class="metric">
+                    <h3 data-target="50" class="count">0</h3>
+                    <p>Industry Partnerships</p>
+                </div>
+                <div class="metric">
+                    <h3 data-target="100" class="count">0</h3>
+                    <p>Countries Reached</p>
+                </div>
+            </div>
+    
+            <!-- Logo Grid -->
+            <div class="logo-grid">
+                <img src="images/microsoft.webp" alt="Company 1" />
+                <img src="images/tesla.png" alt="Company 2" />
+                <img src="images/amazon.webp" alt="Company 3" />
+                <img src="images/google.webp" alt="Company 4" />
+                <img src="images/visa.png" alt="Company 5" />
+                <img src="images/paypal.png" alt="Company 6" />
+            </div>
+        </div>
+    </section>
+    
+    <section id="client-testimonials" class="testimonial-section">
+        <div class="testimonial-content">
+            <h2 class="section-title">What Our Clients Are Saying</h2>
+            <p class="section-subtext">
+                Hear from satisfied clients who have experienced success using our platform.
+            </p>
+    
+            <!-- Testimonial Cards -->
+            <div class="testimonials-container">
+                <!-- Testimonial 1 -->
+                <div class="testimonial">
+                    <div class="testimonial-text">
+                        <p>"The best platform I’ve ever used! My portfolio has grown exponentially with the help of auto trading."</p>
+                    </div>
+                    <div class="client-info">
+                        <span class="client-name">John Doe</span>
+                        <span class="client-location">California, USA</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <span class="progress-label">Earnings: $5000</span>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Testimonial 2 -->
+                <div class="testimonial">
+                    <div class="testimonial-text">
+                        <p>"I’ve been using this for months, and the results are amazing. Highly recommend to anyone looking to trade smarter."</p>
+                    </div>
+                    <div class="client-info">
+                        <span class="client-name">Sarah Lee</span>
+                        <span class="client-location">London, UK</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <span class="progress-label">Earnings: $12,000</span>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 80%;"></div>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Testimonial 3 -->
+                <div class="testimonial">
+                    <div class="testimonial-text">
+                        <p>"Fantastic platform with excellent customer support. My returns have been incredible!"</p>
+                    </div>
+                    <div class="client-info">
+                        <span class="client-name">Raj Patel</span>
+                        <span class="client-location">Mumbai, India</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <span class="progress-label">Earnings: $8,000</span>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 70%;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
-
-        <!-- Footer Section -->
+    
+    <!-- Footer Section -->
     <footer class="footer">
         <div class="footer-container">
     
@@ -261,6 +411,6 @@
         <p>© 2024 Sterling Edge. All rights reserved.</p>
         </div>
     </footer>
-  
+    <script src="Home.js"></script>
 </body>
 </html>
