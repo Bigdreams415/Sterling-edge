@@ -338,6 +338,103 @@ body.no-scroll {
 }
 
 
+/* welcome sections */
+
+/* Scoped Welcome Section Styling */
+.user-welcome {
+  background: linear-gradient(135deg, #667eea, #764ba2); /* Elegant gradient background */
+  color: #fff;
+  padding: 30px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-welcome:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Welcome Message */
+.user-welcome p {
+  font-size: 1.1rem;
+  margin: 10px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.user-welcome strong {
+  font-weight: bold;
+  color: #ffeb3b; /* Highlight color for emphasis */
+}
+
+/* Decorative Elements (Optional) */
+.user-welcome::before,
+.user-welcome::after {
+  content: '';
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  top: -50px;
+  right: -50px;
+  z-index: 0;
+  animation: float 6s ease-in-out infinite;
+}
+
+.user-welcome::after {
+  width: 150px;
+  height: 150px;
+  top: auto;
+  bottom: -75px;
+  left: -75px;
+  animation-delay: -3s;
+}
+
+@keyframes float {
+  0%, 100% {
+      transform: translateY(0) rotate(0deg);
+  }
+  50% {
+      transform: translateY(20px) rotate(360deg);
+  }
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  .user-welcome {
+      padding: 20px 15px;
+  }
+
+  .user-welcome p {
+      font-size: 1rem;
+  }
+
+  .user-welcome strong {
+      color: #ffd700; /* Slightly different highlight color for mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .user-welcome {
+      padding: 15px 10px;
+  }
+
+  .user-welcome p {
+      font-size: 0.9rem;
+  }
+
+  .user-welcome strong {
+      font-size: 1rem;
+  }
+}
+
+
 /* Market Data Section Styling */
 .market-list {
   display: flex;

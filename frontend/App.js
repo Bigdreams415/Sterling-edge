@@ -275,3 +275,36 @@ if (method) {
     }
 }
 });
+
+
+// Function to fetch user information and update the DOM
+async function fetchUserInfo() {
+  try {
+      // Fetch the user info using the GET route
+      const response = await fetch('http://localhost:3000/user-info', {
+          method: 'GET',
+          headers: {
+              'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Retrieve the JWT token from local storage (or wherever you store it)
+          }
+      });
+
+      if (!response.ok) {
+          throw new Error('Failed to fetch user info');
+      }
+
+      const data = await response.json();
+
+      // Update the DOM with the received user data
+      document.getElementById('username').innerText = data.username;
+      document.getElementById('UID').innerText = data.uid;
+      document.getElementById('status').innerText = data.status;
+      document.getElementById('last-login').innerText = data.lastLogin || 'N/A'; // If last login is null, show N/A
+
+  } catch (error) {
+      console.error('Error fetching user info:', error);
+      // Optionally show an error message or fallback
+  }
+}
+
+// Call the function to fetch and update the user information when the page loads
+window.onload = fetchUserInfo;
