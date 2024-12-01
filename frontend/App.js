@@ -281,7 +281,7 @@ if (method) {
 async function fetchUserInfo() {
   try {
       // Fetch the user info using the GET route
-      const response = await fetch('http://localhost:3000/user-info', {
+      const response = await fetch('https://sterling-edge.onrender.com/user-info', {
           method: 'GET',
           headers: {
               'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Retrieve the JWT token from local storage (or wherever you store it)
