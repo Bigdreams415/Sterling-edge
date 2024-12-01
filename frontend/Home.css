@@ -865,6 +865,7 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
     transition: transform 0.3s ease;
+    pointer-events: none;
 }
 
 .video-box:hover {
@@ -876,6 +877,10 @@
     height: 100%;
     object-fit: cover;
     border-radius: 8px;
+}
+
+.video{
+    pointer-events: none !important;
 }
 
 /* Responsive Design */
