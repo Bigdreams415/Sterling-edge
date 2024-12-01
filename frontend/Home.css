@@ -747,27 +747,27 @@
     margin: 20px;
     margin-bottom: 70px;
     padding-bottom: 50px;
-  }
-  
-  .copy-trading-section .section-title {
+}
+
+.copy-trading-section .section-title {
     font-size: 2rem;
     font-weight: bold;
     margin-bottom: 10px;
-  }
-  
-  .copy-trading-section .section-description {
+}
+
+.copy-trading-section .section-description {
     font-size: 1.2rem;
     margin-bottom: 30px;
-  }
-  
-  .video-container {
+}
+
+.video-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
-  }
-  
-  .video-item {
+}
+
+.video-item {
     width: 30%; /* Adjust width as needed */
     min-width: 250px;
     background: #1a1a1a;
@@ -775,118 +775,126 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s, box-shadow 0.3s;
-  }
-  
-  .video-item:hover {
+    position: relative;
+}
+
+.video-item:hover {
     transform: translateY(-10px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-  }
-  
-  .video-item video {
+}
+
+.video-wrapper {
+    position: relative;
     width: 100%;
     border-radius: 8px;
-  }
-  
-  .video-item .video-text {
+    overflow: hidden;
+    pointer-events: none; /* Prevent interaction */
+}
+
+.video-wrapper video {
+    width: 100%;
+    pointer-events: none; /* Prevent clicks and controls */
+}
+
+.video-item .video-text {
     margin-top: 10px;
     font-size: 1rem;
     font-weight: 500;
-  }
-  
+}
 
- /* Start Trading Section */
+/* Responsive Design */
+@media (max-width: 768px) {
+    .copy-trading-section .section-title {
+        font-size: 1.5rem;
+    }
+
+    .copy-trading-section .section-description {
+        font-size: 1rem;
+    }
+
+    .video-item {
+        width: 100%;
+    }
+
+}
+
+
+
+/* Section Styling */
 .start-trading-section {
     background: linear-gradient(to bottom, #f0f4f8, #e9eef5);
     color: #333;
-    padding: 60px 20px; /* Reduced padding */
+    padding: 50px 20px;
     text-align: center;
     border-radius: 12px;
-    margin: 30px 0; /* Removed left/right margin */
-    max-width: 100%; /* Full width for section */
+    margin: 30px 0;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s ease-in-out;
-}
-
-.start-trading-section:hover {
-    transform: translateY(-10px);
 }
 
 .start-trading-section .section-title {
-    font-size: 2.8rem;
+    font-size: 2.5rem;
     font-weight: bold;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     color: #2a2a2a;
-    animation: fadeIn 1s ease-in-out;
 }
 
 /* Steps Container */
 .steps-container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Ensure all 4 steps are in one line */
-    gap: 25px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
     margin-top: 30px;
 }
 
 /* Step Styling */
 .step {
     background: #ffffff;
-    padding: 25px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
     text-align: center;
-    animation: zoomIn 0.5s ease-in-out;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .step:hover {
-    transform: translateY(-8px) scale(1.03);
+    transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .step h3 {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: bold;
-    margin-top: 20px;
+    margin-top: 15px;
     color: #444;
 }
 
 .step p {
     font-size: 1rem;
     color: #666;
-    margin-top: 12px;
+    margin-top: 10px;
 }
 
 /* Video Styling */
 .video-box {
     width: 100%;
-    height: 160px;
+    height: 150px;
     overflow: hidden;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    transition: transform 0.3s ease;
-    pointer-events: none;
-}
-
-.video-box:hover {
-    transform: scale(1.05);
+    margin-bottom: 15px;
+    pointer-events: none; /* Disable interactions */
 }
 
 .video-box video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 8px;
-}
-
-.video{
-    pointer-events: none !important;
+    pointer-events: none; /* Ensure non-controllable */
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
     .steps-container {
-        grid-template-columns: repeat(3, 1fr); /* Adjust to 3 steps per row */
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
@@ -896,48 +904,15 @@
     }
 
     .steps-container {
-        grid-template-columns: repeat(2, 1fr); /* Adjust to 2 steps per row */
-        gap: 20px;
-    }
-
-    .step h3 {
-        font-size: 1.2rem;
-    }
-
-    .step p {
-        font-size: 0.9rem;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 480px) {
     .steps-container {
-        grid-template-columns: 1fr; /* Single step per row */
+        grid-template-columns: 1fr;
     }
 }
-
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes zoomIn {
-    from {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
 
 /* Trusted by Section */
 .trusted-by-section {
