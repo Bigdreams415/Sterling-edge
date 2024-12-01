@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const { type } = require('os');
  
 const app = express();
 
@@ -54,6 +55,8 @@ const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     phone: { type: String },
+    lastLogin: {type: String, default: null},
+    status: {type: String, default: "Inactive"}, 
     uid: { type: String, required: true, unique: true },
     totalBalance: { type: Number, default: 0 },  
     holdings: [
@@ -361,65 +364,86 @@ app.post('/signup', async (req, res) => {
 
 // User login
 app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+  const { username, password } = req.body;
 
-    console.log("Received login request:", req.body);
+  console.log("Received login request:", req.body);
 
-    try {
-        // Convert username/email to lowercase for case-insensitive comparison
-        const user = await User.findOne({ 
-            $or: [{ username: username.toLowerCase() }, { email: username.toLowerCase() }] 
-        });
-        
-        console.log("User found in database:", user);
+  try {
+      // Convert username/email to lowercase for case-insensitive comparison
+      const user = await User.findOne({ 
+          $or: [{ username: username.toLowerCase() }, { email: username.toLowerCase() }] 
+      });
+      
+      console.log("User found in database:", user);
 
-        if (!user) {
-            console.log("User not found");
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
+      if (!user) {
+          console.log("User not found");
+          return res.status(400).json({ message: 'Invalid credentials' });
+      }
 
-        // Verify password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            console.log("Password mismatch");
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
+      // Verify password
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+          console.log("Password mismatch");
+          return res.status(400).json({ message: 'Invalid credentials' });
+      }
 
-        // Create JWT token
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+      // Update status to 'Active' and set lastLogin to the current date and time
+      user.status = 'Active';
+      user.lastLogin = new Date().toISOString();  // You can format it as you prefer (e.g., 'YYYY-MM-DD HH:MM:SS')
 
-        
-        res.json({ 
-            token, 
-            username: user.username,   
-            name: user.name || user.username // Optionally include the full name if available
-        });
-    } catch (error) {
-        console.error("Error during login:", error);
-        res.status(500).json({ message: 'Server error' });
-    }
+      // Save the updated user data
+      await user.save();
+
+      // Create JWT token
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+      res.json({ 
+          token, 
+          username: user.username,   
+          name: user.name || user.username // Optionally include the full name if available
+      });
+  } catch (error) {
+      console.error("Error during login:", error);
+      res.status(500).json({ message: 'Server error' });
+  }
 });
+
 
 //Backend to get user details
 
-app.get('/user', authenticateJWT, async (req, res) => {
+app.get('/user-info', async (req, res) => {
+    // Get the token from the Authorization header
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+        return res.status(401).json({ message: 'Access denied, token missing' });
+    }
+
     try {
-        const user = await User.findById(req.user.id);
+        // Verify the JWT token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Fetch the user based on the decoded user ID
+        const user = await User.findById(decoded.id).select('username uid status lastLogin');
+        
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        console.log('User found:', user);  
-
+        // Respond with user information
         res.json({
-            username: user.username,  
-            uid: user.uid
+            username: user.username,
+            uid: user.uid,
+            status: user.status,
+            lastLogin: user.lastLogin,
         });
     } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error("Error fetching user info:", error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 // Fetch Holdings for a User by UID
 app.get('/admin/user-holdings/:uid', authenticateJWT, async (req, res) => {
