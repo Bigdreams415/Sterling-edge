@@ -15,6 +15,7 @@
         <li data-section="crypto">Cryptocurrency</li>
         <li data-section="digital-wallets">Digital Wallets</li>
         <li data-section="card-email">Card Deposit & Email</li>
+        <li data-section="manage-holdings">Manage Holdings</li>
       </ul>
     </aside>
 
@@ -96,6 +97,54 @@
         <h2>Card Deposit & Email</h2>
         <p>No editable fields required. Users will contact support via email for card deposit instructions.</p>
       </section>
+
+      
+      <!-- Manage Holdings Section -->
+      <div id="manage-holdings" class="content-section hidden">
+        <!-- Search User Section -->
+        <div class="search-section">
+            <input type="text" id="uid-search" placeholder="Enter User UID">
+            <button class="btn" id="search-btn">Search</button>
+        </div>
+
+        <!-- User Info & Balance -->
+        <div class="user-info-section">
+            <h2>User Info</h2>
+            <p><strong>Full Name:</strong> <span id="user-name"></span></p>
+            <p><strong>Username:</strong> <span id="user-username"></span></p>
+            <p><strong>Email:</strong> <span id="user-email"></span></p>
+
+            <label for="total-balance">Total Balance:</label>
+            <input type="number" id="total-balance" placeholder="Update balance" step="0.00">
+
+            <button class="btn" id="update-balance-btn">Update Balance</button>
+        </div>
+
+        <!-- Holdings Section -->
+        <div class="user-holdings-">
+            <h2>User Holdings</h2>
+
+            <!-- Form to Add/Edit Holdings -->
+            <div id="add-holding-form">
+                <h3>Add Holding</h3>
+                <input type="text" id="holding-name" placeholder="Asset Name" required>
+                <input type="text" id="holding-symbol" placeholder="Asset Symbol (e.g., BTC)" required>
+                <input type="number" id="holding-amount" placeholder="Amount" required>
+                <input type="number" id="holding-value" placeholder="Value" required>
+                <button class="btn" id="add-holding-btn">Add Holding</button>
+            </div>
+
+            <h3>Existing Holdings</h3>
+            <div id="holdings-list"></div>
+        </div>
+
+        <!-- Feedback Messages -->
+        <div id="feedback-msg" class="feedback-msg"></div>
+    </div>
+
+
+
+
     </main>
   </div>
   <script src="admin.js"></script>
