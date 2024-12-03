@@ -214,7 +214,7 @@ document.getElementById('search-btn').addEventListener('click', async () => {
     console.log("Fetching holdings for UID:", uid);
 
     try {
-        const response = await fetch(`http://localhost:3000/admin/user-holdings/${uid}`, {
+        const response = await fetch(`https://sterling-edge.onrender.com/admin/user-holdings/${uid}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -258,7 +258,7 @@ document.getElementById('add-holding-btn').addEventListener('click', async () =>
 
     try {
         // Add new holding
-        const response = await fetch('http://localhost:3000/admin/add-holding', {
+        const response = await fetch('https://sterling-edge.onrender.com/admin/add-holding', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -272,7 +272,7 @@ document.getElementById('add-holding-btn').addEventListener('click', async () =>
         console.log("Holding added successfully");
 
         // Fetch updated holdings to recalculate total amount
-        const updatedHoldingsResponse = await fetch(`http://localhost:3000/admin/user-holdings/${uid}`, {
+        const updatedHoldingsResponse = await fetch(`https://sterling-edge.onrender.com/admin/user-holdings/${uid}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -285,7 +285,7 @@ document.getElementById('add-holding-btn').addEventListener('click', async () =>
         const totalAmount = updatedData.holdings.reduce((total, holding) => total + holding.amount, 0);
 
         // Update total amount in the database
-        await fetch(`http://localhost:3000/admin/user-balance/${uid}`, {
+        await fetch(`https://sterling-edge.onrender.com/admin/user-balance/${uid}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -316,7 +316,7 @@ document.getElementById('update-balance-btn').addEventListener('click', async ()
     }
 
     try {
-        const response = await fetch(`http://localhost:3000/admin/user-balance/${uid}`, {
+        const response = await fetch(`https://sterling-edge.onrender.com/admin/user-balance/${uid}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
