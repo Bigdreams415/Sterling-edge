@@ -281,7 +281,7 @@ if (method) {
 async function fetchUserInfo() {
   try {
       // Fetch the user info using the GET route
-      const response = await fetch('https://sterling-edge.onrender.com/user-info', {
+      const response = await fetch('http://localhost:3000/user-info', {
           method: 'GET',
           headers: {
               'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Retrieve the JWT token from local storage (or wherever you store it)
@@ -307,4 +307,78 @@ async function fetchUserInfo() {
 }
 
 // Call the function to fetch and update the user information when the page loads
-window.onload = fetchUserInfo;
+// window.onload = fetchUserInfo;
+
+
+function fetchPortfolioData() {
+    console.log('Fetching portfolio data...');
+    
+    fetch('http://localhost:3000/portfolio', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+            console.error('Failed to fetch portfolio data. Status:', response.status);
+            throw new Error('Failed to fetch portfolio data');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Portfolio Data:', data); // Log fetched data
+        updatePortfolioUI(data); // Update UI with portfolio data
+    })
+    .catch(error => {
+        console.error('Error fetching portfolio data:', error);
+        alert('Failed to fetch portfolio data. Please try again.');
+    });
+}
+
+// Function to update UI with portfolio data
+function updatePortfolioUI(data) {
+    console.log('Updating portfolio UI with data:', data);
+
+    // Update Total Balance
+    const totalBalanceEl = document.getElementById('total-balance');
+    if (totalBalanceEl) {
+        totalBalanceEl.textContent = `$${data.totalBalance.toFixed(2)}`;
+        console.log('Updated total balance:', data.totalBalance);
+    }
+
+    // Update Holdings
+    const holdingsContainer = document.querySelector(".holdings");
+    if (holdingsContainer) {
+        holdingsContainer.innerHTML = ""; // Clear existing holdings list
+
+        if (data.holdings && data.holdings.length > 0) {
+            console.log('Updating holdings:', data.holdings);
+
+            data.holdings.forEach(holding => {
+                const holdingElement = document.createElement("div");
+                holdingElement.classList.add("holding");
+                holdingElement.innerHTML = `
+                    <h4>${holding.name} (${holding.symbol})</h4>
+                    <p>Amount: ${holding.amount}</p>
+                    <p>Value: $${holding.value.toFixed(2)}</p>
+                `;
+                holdingsContainer.appendChild(holdingElement);
+            });
+        } else {
+            console.log('No holdings available');
+            holdingsContainer.innerHTML = `<p>No holdings available.</p>`;
+        }
+    }
+}
+
+
+// window.onload = fetchPortfolioData;
+
+window.onload = function () {
+    fetchUserInfo();
+    fetchPortfolioData();
+};
+

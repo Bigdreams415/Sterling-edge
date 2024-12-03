@@ -206,3 +206,130 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchCryptoData(cryptoDropdown.value);
     fetchDigitalWalletsData(walletTypeDropdown.value);
 });
+
+
+// Fetch Holdings and Display
+document.getElementById('search-btn').addEventListener('click', async () => {
+    const uid = document.getElementById('uid-search').value;
+    console.log("Fetching holdings for UID:", uid);
+
+    try {
+        const response = await fetch(`http://localhost:3000/admin/user-holdings/${uid}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+
+        const data = await response.json();
+        console.log('Data from backend:', data);
+
+        const holdingsList = document.getElementById('holdings-list');
+        holdingsList.innerHTML = ""; // Clear previous content
+
+        if (data.holdings && data.holdings.length === 0) {
+            holdingsList.innerHTML = "<p>No holdings found for this user.</p>";
+        } else {
+            data.holdings.forEach(holding => {
+                const holdingElement = document.createElement('div');
+                holdingElement.textContent = `${holding.name} (${holding.symbol}): ${holding.amount} units worth $${holding.value}`;
+                holdingsList.appendChild(holdingElement);
+            });
+        }
+
+        // Update total balance display as sum of amounts
+        const totalAmount = data.holdings.reduce((total, holding) => total + holding.amount, 0);
+        document.getElementById('total-balance').value = totalAmount;
+
+    } catch (error) {
+        console.error("Error fetching holdings:", error);
+    }
+});
+
+// Add New Holding and Update Total Amount
+document.getElementById('add-holding-btn').addEventListener('click', async () => {
+    const uid = document.getElementById('uid-search').value;
+    const name = document.getElementById('holding-name').value;
+    const symbol = document.getElementById('holding-symbol').value;
+    const amount = parseFloat(document.getElementById('holding-amount').value);
+    const value = parseFloat(document.getElementById('holding-value').value);
+
+    try {
+        // Add new holding
+        const response = await fetch('http://localhost:3000/admin/add-holding', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: JSON.stringify({ uid, name, symbol, amount, value })
+        });
+
+        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+        console.log("Holding added successfully");
+
+        // Fetch updated holdings to recalculate total amount
+        const updatedHoldingsResponse = await fetch(`http://localhost:3000/admin/user-holdings/${uid}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+
+        const updatedData = await updatedHoldingsResponse.json();
+
+        // Calculate the new total amount
+        const totalAmount = updatedData.holdings.reduce((total, holding) => total + holding.amount, 0);
+
+        // Update total amount in the database
+        await fetch(`http://localhost:3000/admin/user-balance/${uid}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: JSON.stringify({ totalBalance: totalAmount })
+        });
+
+        console.log("Total amount updated:", totalAmount);
+
+        // Update display of total amount on the page
+        document.getElementById('total-balance').value = totalAmount;
+
+    } catch (error) {
+        console.error("Error updating holdings or balance:", error);
+    }
+});
+
+
+// Event listener for updating total balance from input
+document.getElementById('update-balance-btn').addEventListener('click', async () => {
+    const uid = document.getElementById('uid-search').value;
+    const totalBalance = parseFloat(document.getElementById('total-balance').value);
+
+    if (!uid || isNaN(totalBalance)) {
+        console.error("UID or Total Balance input is invalid");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/admin/user-balance/${uid}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: JSON.stringify({ totalBalance })
+        });
+
+        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+        console.log("Total balance updated successfully:", totalBalance);
+
+    } catch (error) {
+        console.error("Error updating total balance:", error);
+    }
+});

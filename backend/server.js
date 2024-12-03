@@ -7,18 +7,20 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-const { type } = require('os');
+// const { type } = require('os');
  
 const app = express();
 
 
 // Serve static files from the frontend folder
-// app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Route to serve home.html for the homepage
-// app.get('/', (req, res) => {
-//     res.sendFile(path.join(__dirname, '../frontend/Home.html'));
-// });
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+
 // Middleware
 app.use(express.json());
 app.use(bodyParser.json());
@@ -36,17 +38,31 @@ mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log("MongoDB connected"))
     .catch(err => console.log(err));
 
-// Middleware to protect routes
+
+
 const authenticateJWT = (req, res, next) => {
+    console.log('Authenticating JWT...');
+    
     const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) return res.sendStatus(403);
+    if (!token) {
+        console.log('Authorization token missing');
+        return res.status(403).json({ message: 'No token provided' });
+    }
+
+    console.log('Received Token:', token);
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
+        if (err) {
+            console.error('Token verification failed:', err);
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+
+        console.log('Decoded Token:', user); // Log decoded JWT payload
         req.user = user;
         next();
     });
 };
+
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -508,21 +524,26 @@ app.put('/admin/user-balance/:uid', async (req, res) => {
 
 // Backend route to get user portfolio
 app.get('/portfolio', authenticateJWT, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+  try {
+      console.log('Incoming request to /portfolio');
+      console.log('Decoded User:', req.user); // Log user from JWT
 
-         
-        res.json({
-            totalBalance: user.totalBalance,   
-            holdings: user.holdings            
-        });
-    } catch (error) {
-        console.error('Error fetching portfolio:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
+      const user = await User.findById(req.user.id);
+      if (!user) {
+          console.log('User not found in the database');
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      console.log('Fetched user from database:', user);
+
+      res.json({
+          totalBalance: user.totalBalance,   
+          holdings: user.holdings            
+      });
+  } catch (error) {
+      console.error('Error fetching portfolio:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
 });
 
 

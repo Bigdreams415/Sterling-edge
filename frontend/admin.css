@@ -95,3 +95,172 @@ body {
     display: none;
   }
   
+
+  /* Manage Holdings Section Styling */
+#manage-holdings {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+#manage-holdings h2 {
+  font-size: 1.8rem;
+  color: #444;
+  margin-bottom: 15px;
+}
+
+#manage-holdings h3 {
+  font-size: 1.5rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.search-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-section input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.search-section .btn {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.search-section .btn:hover {
+  background-color: #0056b3;
+}
+
+.user-info-section {
+  margin-bottom: 20px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.user-info-section p {
+  margin: 10px 0;
+  font-size: 1rem;
+}
+
+.user-info-section label {
+  display: block;
+  margin-top: 15px;
+  font-size: 1rem;
+}
+
+.user-info-section input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.user-info-section .btn {
+  margin-top: 15px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.user-info-section .btn:hover {
+  background-color: #218838;
+}
+
+.user-holdings- {
+  margin-bottom: 20px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#add-holding-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+#add-holding-form .btn {
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#add-holding-form .btn:hover {
+  background-color: #138496;
+}
+
+#holdings-list {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#holdings-list .holding-item {
+  background-color: #f1f1f1;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  flex: 1 1 calc(33.33% - 10px);
+  text-align: center;
+}
+
+.feedback-msg {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.feedback-msg.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.feedback-msg.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 768px) {
+  .search-section {
+    flex-direction: column;
+  }
+
+  #holdings-list .holding-item {
+    flex: 1 1 100%;
+  }
+}
