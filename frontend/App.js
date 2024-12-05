@@ -409,10 +409,13 @@ function showSessionExpiredMessage() {
         modal = document.createElement('div');
         modal.id = 'sessionExpiredModal';
         modal.innerHTML = `
-            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;">
-                <div style="background: white; padding: 20px; border-radius: 10px;">
-                    <p>Session expired, please log in.</p>
-                    <button id="loginButton">Log In</button>
+            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+                <div style="background: #fff; padding: 30px 40px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); max-width: 400px; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <h2 style="font-size: 18px; color: #333; margin-bottom: 20px;">Session Expired</h2>
+                    <p style="font-size: 16px; color: #555; margin-bottom: 30px;">Your session has expired. Please log in again to continue.</p>
+                    <button id="loginButton" style="background-color: #007BFF; color: #fff; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease; width: 150px;">
+                        Log In
+                    </button>
                 </div>
             </div>
         `;
@@ -420,7 +423,7 @@ function showSessionExpiredMessage() {
 
         document.getElementById('loginButton').addEventListener('click', () => {
             localStorage.removeItem('authToken');
-            window.location.href = '/login';  
+            window.location.href = 'login.html';
         });
     }
 
