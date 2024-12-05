@@ -428,7 +428,7 @@ function showSessionExpiredMessage() {
 }
 
 
-setTimeout(() => {
-    localStorage.removeItem('authToken');
-    window.location.href = '/login';
-}, 10000); 
+// setTimeout(() => {
+//     localStorage.removeItem('authToken');
+//     window.location.href = '/login';
+// }, 10000); 
