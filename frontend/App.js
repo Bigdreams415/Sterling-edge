@@ -380,5 +380,55 @@ function updatePortfolioUI(data) {
 window.onload = function () {
     fetchUserInfo();
     fetchPortfolioData();
+    checkTokenExpiration();
 };
 
+
+
+//checking token expiration
+
+function checkTokenExpiration() {
+    const token = localStorage.getItem('authToken');  
+    if (token) {
+        const decodedToken = JSON.parse(atob(token.split('.')[1]));  
+        const expirationTime = decodedToken.exp;
+        const currentTime = Math.floor(Date.now() / 1000);  
+
+        if (currentTime >= expirationTime) {
+            showSessionExpiredMessage();
+        }
+    }
+}
+
+setInterval(checkTokenExpiration, 60000);
+
+
+function showSessionExpiredMessage() {
+    let modal = document.getElementById('sessionExpiredModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'sessionExpiredModal';
+        modal.innerHTML = `
+            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+                <div style="background: white; padding: 20px; border-radius: 10px;">
+                    <p>Session expired, please log in.</p>
+                    <button id="loginButton">Log In</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        document.getElementById('loginButton').addEventListener('click', () => {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';  
+        });
+    }
+
+    modal.style.display = 'block';
+}
+
+
+setTimeout(() => {
+    localStorage.removeItem('authToken');
+    window.location.href = '/login';
+}, 10000); 
