@@ -412,7 +412,7 @@ app.post('/login', async (req, res) => {
       await user.save();
 
       // Create JWT token
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '5m' });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '2h' });
 
       res.json({ 
           token, 
