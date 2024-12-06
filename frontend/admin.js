@@ -284,7 +284,6 @@ document.getElementById('add-holding-btn').addEventListener('click', async () =>
         // Calculate the new total amount
         const totalAmount = updatedData.holdings.reduce((total, holding) => total + holding.amount, 0);
 
-        // Update total amount in the database
         await fetch(`https://sterling-edge.onrender.com/admin/user-balance/${uid}`, {
             method: 'PUT',
             headers: {
@@ -296,7 +295,6 @@ document.getElementById('add-holding-btn').addEventListener('click', async () =>
 
         console.log("Total amount updated:", totalAmount);
 
-        // Update display of total amount on the page
         document.getElementById('total-balance').value = totalAmount;
 
     } catch (error) {

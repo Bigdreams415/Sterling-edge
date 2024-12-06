@@ -363,7 +363,7 @@ function updatePortfolioUI(data) {
                 holdingElement.innerHTML = `
                     <h4>${holding.name} (${holding.symbol})</h4>
                     <p>Amount: ${holding.amount}</p>
-                    <p>Value: $${holding.value.toFixed(2)}</p>
+                    <p>Value: $${holding.value.toFixed(4)}</p>
                 `;
                 holdingsContainer.appendChild(holdingElement);
             });
