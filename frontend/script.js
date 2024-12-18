@@ -18,6 +18,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             signupForm.addEventListener("submit", async (event) => {
                 event.preventDefault();
 
+                // Show spinner
+                document.getElementById("loading-spinner").style.display = "flex";
+
                 // Form data collection
                 const fullName = document.getElementById("fullName").value.trim();
                 const email = document.getElementById("signupEmail").value.trim().toLowerCase();
@@ -33,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         title: 'Passwords do not match!',
                         text: 'Please ensure both passwords are the same.',
                     });
+                    document.getElementById("loading-spinner").style.display = "none"; // Hide spinner
                     return;
                 }
 
@@ -59,9 +63,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (response.ok) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Account created successfully!',
-                            showConfirmButton: false,
-                            timer: 7000
+                            title: 'Account Created Successfully!',
+                            text: 'You can now log in to your account.',
+                            showCancelButton: true,
+                            cancelButtonText: 'Go to Login Page',
+                            confirmButtonText: 'Stay Here',
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // If user clicks "Stay Here", no action is taken.
+                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                // If user clicks "Go to Login Page", redirect to login page
+                                window.location.href = "login.html";
+                            }
                         });
                         signupForm.reset();
                     } else {
@@ -71,6 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             text: result.message || "An error occurred during sign-up.",
                         });
                     }
+                    
                 } catch (error) {
                     console.error("Error:", error);
                     Swal.fire({
@@ -78,75 +94,80 @@ document.addEventListener("DOMContentLoaded", async () => {
                         title: 'Server Error',
                         text: 'Failed to connect to the server. Please try again later.',
                     });
+                } finally {
+                    // Hide spinner
+                    document.getElementById("loading-spinner").style.display = "none";
                 }
             });
         }
 
-    // User login
+        // User login
+        const loginForm = document.getElementById("loginForm");
+        if (loginForm) {
+            loginForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
 
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-        loginForm.addEventListener("submit", async (event) => {
-            event.preventDefault();
+                // Show spinner
+                document.getElementById("loading-spinner").style.display = "flex";
 
-            // Get form data
-            const loginInput = document.getElementById("loginEmail").value.trim().toLowerCase();
-            const loginPassword = document.getElementById("loginPassword").value;
+                // Get form data
+                const loginInput = document.getElementById("loginEmail").value.trim().toLowerCase();
+                const loginPassword = document.getElementById("loginPassword").value;
 
-            // Create login data object
-            const loginData = {
-                username: loginInput,   
-                password: loginPassword
-            };
+                // Create login data object
+                const loginData = {
+                    username: loginInput,
+                    password: loginPassword
+                };
 
-            // console.log("Login Data:", loginData);   
-
-            try {
-                // Send login data to backend
-                const response = await fetch("https://sterling-edge.onrender.com/login", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(loginData),
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    // Successful login
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Login Successful!',
-                        text: 'Redirecting...',
-                        showConfirmButton: false,
-                        timer: 2000
+                try {
+                    // Send login data to backend
+                    const response = await fetch("https://sterling-edge.onrender.com/login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(loginData),
                     });
 
-                    // Store token or proceed as needed
-                    localStorage.setItem("authToken", result.token);
-                    setTimeout(() => {
-                        window.location.href = "welcome.html"; // Redirect after successful login
-                    }, 2000);
-                } else {
-                    // Login failed
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        // Successful login
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Login Successful!',
+                            text: 'Redirecting...',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+
+                        // Store token or proceed as needed
+                        localStorage.setItem("authToken", result.token);
+                        setTimeout(() => {
+                            window.location.href = "welcome.html"; // Redirect after successful login
+                        }, 2000);
+                    } else {
+                        // Login failed
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Login Failed',
+                            text: result.message || "Invalid credentials. Please try again.",
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
                     Swal.fire({
                         icon: 'error',
-                        title: 'Login Failed',
-                        text: result.message || "Invalid credentials. Please try again.",
+                        title: 'Server Error',
+                        text: 'Failed to connect to the server. Please try again later.',
                     });
+                } finally {
+                    // Hide spinner
+                    document.getElementById("loading-spinner").style.display = "none";
                 }
-            } catch (error) {
-                console.error("Error:", error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Server Error',
-                    text: 'Failed to connect to the server. Please try again later.',
-                });
-            }
-        });
-    }
-
+            });
+        }
 
     } catch (error) {
         console.error(error);
