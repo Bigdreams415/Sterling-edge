@@ -35,6 +35,7 @@
           <li><a href="#withdrawal" id="withdrawal-menu"><span class="icon"></span>Withdrawal</a></li>
           <li><a href="#market" id="market-menu"><span class="icon">&#128200;</span> Market</a></li>
           <li><a href="#trade" id="trading-menu"><span class="icon">&#128178;</span> Trade</a></li>
+          <li><a href="#calculator" id="calculator-menu"><span class="icon">&#128295;</span> Investment Calculator</a></li>
           <li><a href="#transactions" id="transaction-menu"><span class="icon">&#128179;</span> Transactions</a></li>
           <li><a href="#settings" id="settings-menu"><span class="icon">&#9881;</span> Settings</a></li>
       </ul>
@@ -164,6 +165,32 @@
             <div class="asset-name">Real Estate Fund</div>
             <button class="invest-btn">Invest</button>
           </div>
+        </div>
+      </div>
+
+      <!-- ROI Calculator Section -->
+      <div class="content-section calculator-section" id="calculator" style="display: none;">
+        <div class="calculator-container">
+            <h2 class="calculator-title">Investment ROI Calculator</h2>
+            <form id="roi-calculator-form">
+                <div class="calculator-field">
+                    <label for="investment-amount" class="calculator-label">Initial Investment Amount:</label>
+                    <input type="number" id="investment-amount" class="calculator-input" placeholder="Enter amount in USD" required>
+                </div>
+                <div class="calculator-field">
+                    <label for="rate-of-return" class="calculator-label">Annual Rate of Return (%):</label>
+                    <input type="number" id="rate-of-return" class="calculator-input" placeholder="Enter rate in %" required>
+                </div>
+                <div class="calculator-field">
+                    <label for="investment-duration" class="calculator-label">Investment Duration (Years):</label>
+                    <input type="number" id="investment-duration" class="calculator-input" placeholder="Enter duration in years" required>
+                </div>
+                <button type="submit" class="calculator-btn">Calculate ROI</button>
+            </form>
+            <div id="roi-result" class="calculator-result" style="display: none;">
+                <h3>Your Investment Return</h3>
+                <p id="roi-output"></p>
+            </div>
         </div>
       </div>
 
@@ -454,7 +481,7 @@
           </div>
       </div>
       
-  </div>
+    </div>
 
     </div>
 

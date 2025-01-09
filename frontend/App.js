@@ -90,6 +90,13 @@ function showSettings() {
   document.getElementById('settings').style.display = 'block'; // Show Settings
 }
 
+function showCalculator() {
+    const sections = document.querySelectorAll('.content-section');
+    sections.forEach(section => {
+        section.style.display = 'none';
+    });
+    document.getElementById('calculator').style.display = 'block';
+}
 
 // Attach the functions to the sidebar menu items
 document.getElementById('portfolio-menu').addEventListener('click', showPortfolio);
@@ -100,6 +107,7 @@ document.getElementById('settings-menu').addEventListener('click', showSettings)
 document.getElementById('settings-menu').addEventListener('click', showSettings);
 document.getElementById('deposit-menu').addEventListener('click', showDeposit);
 document.getElementById('withdrawal-menu').addEventListener('click', showWithdrawal);
+document.getElementById('calculator-menu').addEventListener("click", showCalculator)
 
 // Initialize the default section
 showPortfolio();
@@ -431,7 +439,32 @@ function showSessionExpiredMessage() {
 }
 
 
+
 // setTimeout(() => {
 //     localStorage.removeItem('authToken');
 //     window.location.href = '/login';
 // }, 10000); 
+
+//ROI calculator
+
+document.getElementById('roi-calculator-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const investmentAmount = parseFloat(document.getElementById('investment-amount').value);
+    const rateOfReturn = parseFloat(document.getElementById('rate-of-return').value) / 100;
+    const investmentDuration = parseInt(document.getElementById('investment-duration').value, 10);
+
+    if (isNaN(investmentAmount) || isNaN(rateOfReturn) || isNaN(investmentDuration)) {
+        alert('Please fill out all fields with valid numbers.');
+        return;
+    }
+
+    // Calculate ROI
+    const totalReturn = investmentAmount * Math.pow(1 + rateOfReturn, investmentDuration);
+    const roi = totalReturn - investmentAmount;
+
+    // Display the result
+    const resultDiv = document.getElementById('roi-result');
+    document.getElementById('roi-output').innerText = `After ${investmentDuration} years, your total return will be $${totalReturn.toFixed(2)}, which is an ROI of $${roi.toFixed(2)}.`;
+    resultDiv.style.display = 'block';
+});
