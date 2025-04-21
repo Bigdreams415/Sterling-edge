@@ -264,3 +264,51 @@ body {
     flex: 1 1 100%;
   }
 }
+
+
+/* Send Email Section Styling */
+#send-emails form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 600px;
+  margin-top: 20px;
+}
+
+#send-emails label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+#send-emails input[type="text"],
+#send-emails input[type="file"],
+#send-emails textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+#send-emails textarea {
+  resize: vertical;
+}
+
+#send-email-btn {
+  padding: 10px 20px;
+  background-color: #1d72b8;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+#send-email-btn:hover {
+  background-color: #155a96;
+}
+
+.feedback-msg {
+  margin-top: 10px;
+  font-size: 14px;
+  color: green;
+}
