@@ -1,55 +1,47 @@
-// DOM Elements
-const sidebar = document.getElementById('sidebar');
-const hamburgerMenu = document.getElementById('hamburger-menu');
-const closeSidebar = document.getElementById('close-sidebar');
-const overlay = document.getElementById('overlay');
-const sidebarLinks = document.querySelectorAll('.sidebar ul li');
-const contentSections = document.querySelectorAll('.content-section');
-
-// Function to Toggle Sidebar
-function toggleSidebar(open) {
-  if (open) {
-    sidebar.classList.add('open');
-    overlay.classList.add('active');
-  } else {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
-  }
-}
-
-// Add Event Listeners for Sidebar
-hamburgerMenu.addEventListener('click', () => toggleSidebar(true));
-closeSidebar.addEventListener('click', () => toggleSidebar(false));
-overlay.addEventListener('click', () => toggleSidebar(false));
-
-// Tab Switch Function
-function switchTab(sectionId) {
-  // Deactivate all links and hide all sections
-  sidebarLinks.forEach(link => link.classList.remove('active'));
-  contentSections.forEach(section => section.classList.remove('active', 'hidden'));
-
-  // Activate clicked link and corresponding section
-  document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
-  document.getElementById(sectionId).classList.add('active');
-  toggleSidebar(false); // Close sidebar on mobile
-}
-
-// Add Event Listeners to Sidebar Links
-sidebarLinks.forEach(link => {
-  link.addEventListener('click', () => {
-    const sectionId = link.getAttribute('data-section');
-    switchTab(sectionId);
+document.addEventListener('DOMContentLoaded', () => {
+    const sections = document.querySelectorAll('.content-section');
+    const sidebarLinks = document.querySelectorAll('.sidebar li');
+  
+    sidebarLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        sidebarLinks.forEach((item) => item.classList.remove('active'));
+        link.classList.add('active');
+  
+        sections.forEach((section) => section.classList.remove('active'));
+        const sectionId = link.dataset.section;
+        document.getElementById(sectionId).classList.add('active');
+      });
+    });
   });
-});
+  
 
-// Initialize First Tab
-switchTab('bank-transfer');
+  // Admin Frontend JS (admin.js)
+
+// Function to switch between sections
+function switchSection(activeSection) {
+    const sections = document.querySelectorAll('.content-section');
+    sections.forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(activeSection).classList.remove('hidden');
+}
+
+// Handle sidebar clicks to switch content sections
+const sidebarItems = document.querySelectorAll('.sidebar li');
+sidebarItems.forEach(item => {
+    item.addEventListener('click', function() {
+        const section = item.getAttribute('data-section');
+        switchSection(section);
+        sidebarItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+    });
+});
 
  
 // Integrating backend into frontend for deposit management
 
 document.addEventListener('DOMContentLoaded', () => {
-    const baseURL = "https://sterling-edge.onrender.com"; // Backend URL
+    const baseURL = "http://localhost:3000"; // Backend URL
 
     // Elements for Bank Transfer
     const bankTransferForm = document.querySelector('#bank-transfer form');
@@ -340,144 +332,6 @@ document.getElementById('update-balance-btn').addEventListener('click', async ()
     }
 });
 
-//Js for custom inyteraction in pin generation
-
-document.addEventListener("DOMContentLoaded", () => {
-    const pinTypeDropdown = document.getElementById("pin-type");
-    const expirationDropdown = document.getElementById("expiration-time");
-    const customExpirationSection = document.getElementById("custom-expiration");
-    const customDurationInput = document.getElementById("custom-duration");
-    const customDurationHoursInput = document.getElementById("custom-duration-hours");
-    const customDurationDaysInput = document.getElementById("custom-duration-days");
-    const generatePinButton = document.getElementById("generate-pin");
-    const pinFeedback = document.getElementById("pin-feedback");
-    const generatedPinElement = document.getElementById("generated-pin");
-    const expirationTimeDisplay = document.getElementById("expiration-time-display");
-    const copyPinButton = document.getElementById("copy-pin");
-
-    // Show or hide custom expiration time section
-    expirationDropdown.addEventListener("change", () => {
-        if (expirationDropdown.value === "custom") {
-            customExpirationSection.style.display = "block"; // Show the custom expiration section
-        } else {
-            customExpirationSection.style.display = "none"; // Hide the custom expiration section
-        }
-    });
-
-    // Handle PIN generation
-    generatePinButton.addEventListener("click", async () => {
-        let pinType = parseInt(pinTypeDropdown.value, 10); // Convert PIN length to number
-        let expirationTime = expirationDropdown.value; // Expiration time as string
-
-        // If custom expiration time is selected, gather custom values
-        if (expirationTime === "custom") {
-            const customDuration = parseInt(customDurationInput.value || 0, 10);
-            const customDurationHours = parseInt(customDurationHoursInput.value || 0, 10);
-            const customDurationDays = parseInt(customDurationDaysInput.value || 0, 10);
-
-            // Convert custom time to minutes
-            expirationTime = customDuration + (customDurationHours * 60) + (customDurationDays * 1440);
-        } else {
-            expirationTime = parseInt(expirationTime, 10); // Convert predefined value to number
-        }
-
-        console.log("===== FRONTEND LOGS =====");
-        console.log("Selected PIN Length (pinType):", pinType);
-        console.log("Selected Expiration Time (minutes):", expirationTime);
-
-        const authToken = localStorage.getItem('authToken');
-        if (!authToken) {
-            alert("You must be logged in to generate a PIN.");
-            return;
-        }
-
-        try {
-            // Log the request payload
-            const payload = {
-                pinLength: pinType,
-                expirationTime: expirationTime
-            };
-            console.log("Payload sent to backend:", payload);
-
-            // Make the API call to generate and store the PIN
-            const response = await fetch('https://sterling-edge.onrender.com/admin/generate-pin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}` // Send the auth token for authentication
-                },
-                body: JSON.stringify(payload)
-            });
-
-            console.log("Backend response status:", response.status);
-
-            if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-
-            const data = await response.json();
-            console.log("Response from backend:", data);
-
-            if (data.message === "PIN generated successfully") {
-                // Display the generated PIN
-                generatedPinElement.textContent = data.pin;
-
-                // Convert expirationAt to local time zone
-                const expirationAtUTC = new Date(data.expirationAt); // Convert from UTC
-                const expirationAtLocal = expirationAtUTC.toLocaleString(); // Convert to local time
-                expirationTimeDisplay.textContent = expirationAtLocal;
-
-                // Show the feedback region
-                pinFeedback.classList.remove("hidden");
-            } else {
-                alert("Error generating PIN: " + data.message);
-            }
-        } catch (error) {
-            console.error("Error during PIN generation:", error);
-            alert("There was an error with the request.");
-        }
-    });
-
-    // Handle the "Copy PIN" button functionality
-    copyPinButton.addEventListener("click", () => {
-        const pin = generatedPinElement.textContent;
-        if (pin) {
-            navigator.clipboard.writeText(pin)
-                .then(() => {
-                    alert("PIN copied to clipboard!");
-                })
-                .catch(err => {
-                    console.error("Error copying PIN:", err);
-                    alert("Failed to copy PIN.");
-                });
-        } else {
-            alert("No PIN to copy.");
-        }
-    });
-});
-
- 
-document.getElementById('deletePinsBtn').addEventListener('click', async () => {
-    if (confirm("Are you sure you want to delete all pins? This action cannot be undone.")) {
-        try {
-            const token = localStorage.getItem("authToken"); // Assuming you're storing JWT in localStorage
-            const response = await fetch('https://sterling-edge.onrender.com/admin/pins', {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const data = await response.json();
-            document.getElementById('statusMessage').textContent = data.message;
-        } catch (error) {
-            console.error("Error deleting pins:", error);
-            document.getElementById('statusMessage').textContent = "Failed to delete pins.";
-        }
-    }
-});
- 
-
- 
 // email API connection to the frontend
 
 document.addEventListener('DOMContentLoaded', () => {
