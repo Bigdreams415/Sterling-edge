@@ -7,7 +7,8 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-// const { type } = require('os');
+const nodemailer = require('nodemailer');
+ 
  
 const app = express();
 
@@ -546,6 +547,133 @@ app.get('/portfolio', authenticateJWT, async (req, res) => {
   }
 });
 
+
+// Nodemailer setup for sending emails
+
+
+// Email API Route
+app.post('/api/send-email', authenticateJWT, async (req, res) => {
+  const { recipients, subject, message } = req.body;
+
+  if (!recipients || !subject || !message) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  try {
+    // Configure transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',  
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    // Set up mail options
+    const mailOptions = {
+      from: `"Sterling Edge Trade" <${process.env.EMAIL_USER}>`,
+      to: recipients,
+      subject: subject,
+      html: `
+             <div style="background-color: #f4f4f4; padding: 40px 0; font-family: Arial, sans-serif;">
+        <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+          
+          <!-- Header Image -->
+          <div style="background-color: #003366;">
+            <img src="cid:emailHeader" alt="Sterling Edge Trade" style="width: 100%; display: block;" />
+          </div>
+      
+          <!-- Body -->
+          <div style="padding: 30px;">
+            <h2 style="color: #003366;">${subject}</h2>
+            <p style="font-size: 16px; line-height: 1.6; color: #333333;">
+              ${message}
+            </p>
+          </div>
+      
+          <!-- Footer -->
+          <div style="background-color: #003366; color: #ffffff; text-align: center; padding: 20px;">
+            <p style="margin: 0;">Sterling Edge Trade — We move with vision.</p>
+            <div style="margin-top: 10px;">
+              <img src="cid:iconFacebook" alt="Facebook" style="width: 24px; margin: 0 6px;" />
+              <img src="cid:iconTwitter" alt="Twitter" style="width: 24px; margin: 0 6px;" />
+              <img src="cid:iconLinkedIn" alt="LinkedIn" style="width: 24px; margin: 0 6px;" />
+            </div>
+          </div>
+        </div>
+      </div>
+      `,
+
+      attachments: [
+        {
+          filename: 'header.png',
+          path: path.join(__dirname, '../frontend/images/email-header.png'), // the wide banner you just created
+          cid: 'emailHeader'
+        },
+        {
+          filename: 'facebook.png',
+          path: path.join(__dirname, '../frontend/icons/facebook-brands.svg'),
+          cid: 'iconFacebook'
+        },
+        {
+          filename: 'twitter.png',
+          path: path.join(__dirname, '../frontend/icons/x-twitter-brands.svg'),
+          cid: 'iconTwitter'
+        },
+        {
+          filename: 'linkedin.png',
+          path: path.join(__dirname, '../frontend/icons/linkedin-brands.svg'),
+          cid: 'iconLinkedIn'
+        }
+      ]
+      
+    };
+    
+
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+
+    res.status(200).json({ message: 'Email sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ error: 'Failed to send email' });
+  }
+});
+
+
+//admin route to get all users
+
+// Admin login route
+app.post('/admin/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  console.log("Received admin login request:", req.body);
+
+  try {
+      // Validate credentials against environment variables
+      if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+          
+          // Create JWT token
+          const token = jwt.sign(
+              { username }, // Payload
+              process.env.JWT_SECRET, // Secret key
+              { expiresIn: '2h' } // Options
+          );
+
+          console.log("Admin login successful, token generated");
+
+          // Send the token in the response
+          return res.status(200).json({ token });
+      } else {
+          console.log("Invalid admin credentials");
+          return res.status(401).json({ message: 'Invalid username or password' });
+      }
+  } catch (error) {
+      console.error("Error during admin login:", error);
+      return res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 const PORT = process.env.PORT || 3000;
