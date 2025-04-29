@@ -762,6 +762,84 @@ app.post('/api/send-noreply-email', authenticateJWT, async (req, res) => {
   }
 });
 
+//nodemailer setup for send fraud protection emails
+
+// Fraud Protection Email API Route
+app.post('/api/send-fraud-protection-email', authenticateJWT, async (req, res) => {
+  const { recipients, subject, message } = req.body;
+
+  if (!recipients || !subject || !message) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER_PASS_PROTECT,
+        pass: process.env.EMAIL_PASS_PROTECT,
+      },
+    });
+
+    const mailOptions = {
+      from: `"Sterling Edge Trade - Security Center" <${process.env.EMAIL_USER_PASS_PROTECT}>`,
+      to: recipients,
+      subject: subject,
+      html: `
+        <div style="background-color: #f4f4f4; padding: 40px 0; font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+            <div style="background-color: #003366;">
+              <img src="cid:emailHeader" alt="Sterling Edge Trade" style="width: 100%; display: block;" />
+            </div>
+            <div style="padding: 30px;">
+              <h2 style="color: #b40000;">${subject}</h2>
+              <p style="font-size: 16px; line-height: 1.6; color: #333333;">${message}</p>
+            </div>
+            <div style="background-color: #003366; color: #ffffff; text-align: center; padding: 20px;">
+              <p style="margin: 0;">Sterling Edge Trade — Secure. Trusted. Resilient.</p>
+              <div style="margin-top: 10px;">
+                <img src="cid:iconFacebook" alt="Facebook" style="width: 24px; margin: 0 6px;" />
+                <img src="cid:iconTwitter" alt="Twitter" style="width: 24px; margin: 0 6px;" />
+                <img src="cid:iconLinkedIn" alt="LinkedIn" style="width: 24px; margin: 0 6px;" />
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      attachments: [
+        {
+          filename: 'header.png',
+          path: path.join(__dirname, '../frontend/images/email-header.png'),
+          cid: 'emailHeader'
+        },
+        {
+          filename: 'facebook.png',
+          path: path.join(__dirname, '../frontend/icons/facebook-brands.svg'),
+          cid: 'iconFacebook'
+        },
+        {
+          filename: 'twitter.png',
+          path: path.join(__dirname, '../frontend/icons/x-twitter-brands.svg'),
+          cid: 'iconTwitter'
+        },
+        {
+          filename: 'linkedin.png',
+          path: path.join(__dirname, '../frontend/icons/linkedin-brands.svg'),
+          cid: 'iconLinkedIn'
+        }
+      ]
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Fraud Protection Email sent:', info.response);
+
+    res.status(200).json({ message: 'Fraud protection email sent successfully' });
+  } catch (error) {
+    console.error('Error sending fraud protection email:', error);
+    res.status(500).json({ error: 'Failed to send fraud protection email' });
+  }
+});
+
 
 //Database for admin
 

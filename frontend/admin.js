@@ -662,7 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const statusEl = document.getElementById('fraud-email-status');
   
       try {
-        const res = await fetch('https://sterling-edge.onrender.com/api/send-fraud', {
+        const res = await fetch('https://sterling-edge.onrender.com/api/send-fraud-protection-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
