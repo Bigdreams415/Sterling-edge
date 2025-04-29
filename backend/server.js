@@ -844,26 +844,27 @@ app.get('/admin/manage-users', authenticateToken, authorize('canManageUsers'), (
 });
 
 //admin login route that is secured
-app.post('/admin/login', async (req, res) => {
-    const { username, password } = req.body;
+
+// app.post('/admin/login', async (req, res) => {
+//     const { username, password } = req.body;
   
-    try {
-        const admin = await Admin.findOne({username: username.toLowerCase()});
-        if (!admin) {
-            return res.status(404).json({ message: 'Admin not Found' });
-        }
-        const ispasswordIsValid = await bcrypt.compare(password, admin.password);
-        if (!ispasswordIsValid) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-        const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET_ADMIN, { expiresIn: '1d' });
-        res.status(200).json({token, admin: {id: admin._id, username: admin.username, role: admin.role, permissions: admin.permissions}});
-      } catch (error) {
-        console.error('Error during admin login:', error);
-        res.status(500).json({ message: 'Server error' });
-      }
-}
-);
+//     try {
+//         const admin = await Admin.findOne({username: username.toLowerCase()});
+//         if (!admin) {
+//             return res.status(404).json({ message: 'Admin not Found' });
+//         }
+//         const ispasswordIsValid = await bcrypt.compare(password, admin.password);
+//         if (!ispasswordIsValid) {
+//             return res.status(400).json({ message: 'Invalid credentials' });
+//         }
+//         const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET_ADMIN, { expiresIn: '1d' });
+//         res.status(200).json({token, admin: {id: admin._id, username: admin.username, role: admin.role, permissions: admin.permissions}});
+//       } catch (error) {
+//         console.error('Error during admin login:', error);
+//         res.status(500).json({ message: 'Server error' });
+//       }
+// }
+// );
 
 //admin login route not that secured
 
