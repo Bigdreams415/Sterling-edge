@@ -249,24 +249,37 @@
       <!-- Noreply email section -->
       <section id="noreply-email" class="content-section hidden email-section">
         <h2 class="section-title">Send Noreply Emails to Clients</h2>
-        <form id="email-form">
+        <form id="noreply-email-form">
           <label for="email-recipients">Recipient Email(s):</label>
-          <input type="text" id="email-recipients" name="email-recipients" placeholder="e.g. user@example.com, client@example.com">
-
+          <input type="text" id="noreply-email-recipients" name="email-recipients" placeholder="e.g. user@example.com, client@example.com">
           <label for="email-subject">Subject:</label>
-          <input type="text" id="email-subject" name="email-subject" placeholder="Enter subject">
-
+          <input type="text" id="noreply-email-subject" name="email-subject" placeholder="Enter subject">
           <label for="email-body">Message:</label>
-          <div id="email-body" name="email-body" style="height: 200px;"></div>
-
+          <div id="noreply-email-body" name="email-body" style="height: 200px;"></div>
           <label for="email-attachments">Attachments (optional):</label>
-          <input type="file" id="email-attachments" name="email-attachments" multiple>
-
-          <button type="submit" id="send-email-btn" class="primary-btn">Send Email</button>
-
-          <p id="email-status" class="feedback-msg"></p>
+          <input type="file" id="noreply-email-attachments" name="email-attachments" multiple>
+          <button type="submit" id="send-noreply-email-btn" class="primary-btn">Send Email</button>
+          <p id="noreply-email-status" class="feedback-msg"></p>
         </form>
       </section>
+
+      <!-- Fraud Emails Section -->
+      <section id="fraud-dept-email" class="content-section hidden email-section">
+        <h2 class="section-title">Send Email to Clients Against Fraud</h2>
+        <form id="fraud-email-form">
+          <label for="email-recipients">Recipient Email(s):</label>
+          <input type="text" id="fraud-email-recipients" name="email-recipients" placeholder="e.g. user@example.com, client@example.com">
+          <label for="email-subject">Subject:</label>
+          <input type="text" id="fraud-email-subject" name="email-subject" placeholder="Enter subject">
+          <label for="email-body">Message:</label>
+          <div id="fraud-email-body" name="email-body" style="height: 200px;"></div>
+          <label for="email-attachments">Attachments (optional):</label>
+          <input type="file" id="fraud-email-attachments" name="email-attachments" multiple>
+          <button type="submit" id="send-fraud-email-btn" class="primary-btn">Send Email</button>
+          <p id="fraud-email-status" class="feedback-msg"></p>
+        </form>
+      </section>
+
 
       <!-- Subadmin Management Section -->
       <section id="subadmin-management" class="content-section hidden">

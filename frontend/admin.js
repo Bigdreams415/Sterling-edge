@@ -568,14 +568,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-//email API connection for noreply email
-
+// Noreply email section
 document.addEventListener('DOMContentLoaded', () => {
-    const emailForm = document.getElementById('email-form');
+    const emailForm = document.getElementById('noreply-email-form');
   
-    // Initialize Quill editor
-    var quill = new Quill('#email-body', {
-      theme: 'snow',  // 'snow' is a clean and simple theme
+    // Initialize Quill editor for noreply section
+    var quill = new Quill('#noreply-email-body', {
+      theme: 'snow',
       modules: {
         toolbar: [
           [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
@@ -589,26 +588,24 @@ document.addEventListener('DOMContentLoaded', () => {
           [{ 'script': 'sub'}, { 'script': 'super' }],
           [{ 'indent': '-1'}, { 'indent': '+1' }],
           [{ 'direction': 'rtl' }],
-          ['clean']  // The "clear formatting" button
+          ['clean']
         ]
       }
     });
   
     emailForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
-  
-      // Get the form values
-      const recipients = document.getElementById('email-recipients').value;
-      const subject = document.getElementById('email-subject').value;
-      const message = quill.root.innerHTML; // Capture the HTML content from the Quill editor
-      const statusEl = document.getElementById('email-status');
+      const recipients = document.getElementById('noreply-email-recipients').value;
+      const subject = document.getElementById('noreply-email-subject').value;
+      const message = quill.root.innerHTML;
+      const statusEl = document.getElementById('noreply-email-status');
   
       try {
-        const res = await fetch('https://sterling-edge.onrender.com/api/send-noreply-', {
+        const res = await fetch('https://sterling-edge.onrender.com/api/send-noreply', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}` //  Added token for auth
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
           },
           body: JSON.stringify({ recipients, subject, message }),
         });
@@ -619,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
           statusEl.textContent = 'Email sent successfully!';
           statusEl.style.color = 'green';
           emailForm.reset();
-          quill.root.innerHTML = ''; // Clear the editor after sending
+          quill.root.innerHTML = '';
         } else {
           statusEl.textContent = data.error || 'Failed to send email.';
           statusEl.style.color = 'red';
@@ -630,4 +627,66 @@ document.addEventListener('DOMContentLoaded', () => {
         statusEl.style.color = 'red';
       }
     });
-});
+  });
+  
+  // Fraud email section (similar to above)
+  document.addEventListener('DOMContentLoaded', () => {
+    const emailForm = document.getElementById('fraud-email-form');
+  
+    // Initialize Quill editor for fraud section
+    var quill = new Quill('#fraud-email-body', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'align': [] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          ['link'],
+          ['blockquote', 'code-block'],
+          ['image'],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'script': 'sub'}, { 'script': 'super' }],
+          [{ 'indent': '-1'}, { 'indent': '+1' }],
+          [{ 'direction': 'rtl' }],
+          ['clean']
+        ]
+      }
+    });
+  
+    emailForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const recipients = document.getElementById('fraud-email-recipients').value;
+      const subject = document.getElementById('fraud-email-subject').value;
+      const message = quill.root.innerHTML;
+      const statusEl = document.getElementById('fraud-email-status');
+  
+      try {
+        const res = await fetch('https://sterling-edge.onrender.com/api/send-fraud', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          },
+          body: JSON.stringify({ recipients, subject, message }),
+        });
+  
+        const data = await res.json();
+  
+        if (res.ok) {
+          statusEl.textContent = 'Email sent successfully!';
+          statusEl.style.color = 'green';
+          emailForm.reset();
+          quill.root.innerHTML = '';
+        } else {
+          statusEl.textContent = data.error || 'Failed to send email.';
+          statusEl.style.color = 'red';
+        }
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = 'Something went wrong!';
+        statusEl.style.color = 'red';
+      }
+    });
+  });
+  
