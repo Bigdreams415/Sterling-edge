@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const statusEl = document.getElementById('noreply-email-status');
   
       try {
-        const res = await fetch('https://sterling-edge.onrender.com/api/send-noreply', {
+        const res = await fetch('https://sterling-edge.onrender.com/api/send-noreply-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -627,10 +627,10 @@ document.addEventListener('DOMContentLoaded', () => {
         statusEl.style.color = 'red';
       }
     });
-  });
+});
   
   // Fraud email section (similar to above)
-  document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     const emailForm = document.getElementById('fraud-email-form');
   
     // Initialize Quill editor for fraud section
@@ -688,5 +688,5 @@ document.addEventListener('DOMContentLoaded', () => {
         statusEl.style.color = 'red';
       }
     });
-  });
+});
   
