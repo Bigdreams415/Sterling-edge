@@ -8,6 +8,8 @@ require('dotenv').config();
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
+const { type } = require('os');
+const { permission } = require('process');
  
  
 const app = express();
@@ -31,16 +33,49 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// MongoDB Config
+
+//Mongodb conig and connect
 const db = process.env.MONGO_URI;
 
-// Connect to MongoDB
-mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log("MongoDB connected"))
-    .catch(err => console.log(err));
+mongoose.connect(db).then(() => {
+    console.log('MongoDB connected successfully');
+}).catch((err) => {
+    console.error('MongoDB connection error:', err);
+});
+
+//seeding the database with admin credentials
+const seedAdmin = async () => {
+    try {
+        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
+        const admin = new Admin({
+            fullName: process.env.ADMIN_NAME,
+            email: process.env.ADMIN_EMAIL,
+            username: process.env.ADMIN_USERNAME,
+            password: hashedPassword,
+            role: 'General_admin',
+            permissions: {
+                canManageUsers: true,
+                canSendEmails: true,
+                canManageHoldings: true,
+                canGeneratePins: true,
+                canAddDigitalWallets: true,
+                canAddBankTransfer: true,
+                canAddCrypto: true,
+                canManageSubadmins: true
+            },
+            status: 'Active',
+        });
+        await admin.save();
+        console.log('Admin seeded successfully');
+    } catch (error) {
+        console.error('Error seeding admin:', error);
+    }
+};
+seedAdmin(); 
 
 
-
+// Middleware to authenticate JWT tokens for users
+// This middleware checks if the JWT token is valid and attaches the user info to the request object
 const authenticateJWT = (req, res, next) => {
     console.log('Authenticating JWT...');
     
@@ -88,7 +123,6 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema);
 
- 
 // deposit schema definition and model
 const depositSchema = new mongoose.Schema({
   method: { type: String, required: true },
@@ -118,10 +152,7 @@ const depositSchema = new mongoose.Schema({
 // Initialize the Deposit model
 const Deposit = mongoose.model('Deposit', depositSchema);
 
-// Export the Deposit model
-module.exports = { Deposit };
-
-
+ 
 // Fetch Bank Transfer Data
 app.get('/admin/deposit/bank-transfer', authenticateJWT, async (req, res) => {
   try {
@@ -641,39 +672,294 @@ app.post('/api/send-email', authenticateJWT, async (req, res) => {
   }
 });
 
+//nodemailer setup for sending noreply emails
 
-//admin route to get all users
+app.post('/api/send-noreply-email', authenticateJWT, async (req, res) => {
+  const { recipients, subject, message } = req.body;
 
-// Admin login route
-app.post('/admin/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  console.log("Received admin login request:", req.body);
+  if (!recipients || !subject || !message) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
 
   try {
-      // Validate credentials against environment variables
-      if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
-          
-          // Create JWT token
-          const token = jwt.sign(
-              { username }, // Payload
-              process.env.JWT_SECRET, // Secret key
-              { expiresIn: '2h' } // Options
-          );
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER_NOREPLY,
+        pass: process.env.EMAIL_PASS_NOREPLY,
+      },
+    });
 
-          console.log("Admin login successful, token generated");
+    const mailOptions = {
+      from: `"Bank of America - Credit Alert" <${process.env.EMAIL_USER_NOREPLY}>`,
+      to: recipients,
+      subject: subject,
+      html: `
+        <div style="background-color: #f4f4f4; padding: 40px 0; font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+            <div style="background-color: #003366;">
+              <img src="cid:emailHeader" alt="Sterling Edge Trade" style="width: 100%; display: block;" />
+            </div>
+            <div style="padding: 30px;">
+              <h2 style="color: #003366;">${subject}</h2>
+              <p style="font-size: 16px; line-height: 1.6; color: #333333;">${message}</p>
+            </div>
+            <div style="background-color: #003366; color: #ffffff; text-align: center; padding: 20px;">
+              <p style="margin: 0;">Sterling Edge Trade — We move with vision.</p>
+              <div style="margin-top: 10px;">
+                <img src="cid:iconFacebook" alt="Facebook" style="width: 24px; margin: 0 6px;" />
+                <img src="cid:iconTwitter" alt="Twitter" style="width: 24px; margin: 0 6px;" />
+                <img src="cid:iconLinkedIn" alt="LinkedIn" style="width: 24px; margin: 0 6px;" />
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      attachments: [
+        {
+          filename: 'header.png',
+          path: path.join(__dirname, '../frontend/images/email-header.png'),
+          cid: 'emailHeader'
+        },
+        {
+          filename: 'facebook.png',
+          path: path.join(__dirname, '../frontend/icons/facebook-brands.svg'),
+          cid: 'iconFacebook'
+        },
+        {
+          filename: 'twitter.png',
+          path: path.join(__dirname, '../frontend/icons/x-twitter-brands.svg'),
+          cid: 'iconTwitter'
+        },
+        {
+          filename: 'linkedin.png',
+          path: path.join(__dirname, '../frontend/icons/linkedin-brands.svg'),
+          cid: 'iconLinkedIn'
+        }
+      ]
+    };
 
-          // Send the token in the response
-          return res.status(200).json({ token });
-      } else {
-          console.log("Invalid admin credentials");
-          return res.status(401).json({ message: 'Invalid username or password' });
-      }
+    const info = await transporter.sendMail(mailOptions);
+    console.log('NOREPLY Email sent:', info.response);
+
+    res.status(200).json({ message: 'No-reply Email sent successfully' });
   } catch (error) {
-      console.error("Error during admin login:", error);
-      return res.status(500).json({ message: 'Server error' });
+    console.error('Error sending no-reply email:', error);
+    res.status(500).json({ error: 'Failed to send no-reply email' });
   }
 });
+
+
+//Database for admin
+
+const adminSchema = new mongoose.Schema({
+  fullName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+
+  role: {
+    type: String,
+    enum: ['General_admin', 'sub_admin'],
+    default: 'sub_admin',
+  },
+
+  permissions: {
+    canManageUsers: { type: Boolean, default: false },
+    canSendEmails: { type: Boolean, default: false },
+    canManageHoldings: { type: Boolean, default: false },
+    canGeneratePins: { type: Boolean, default: false },
+    canSendEmails: { type: Boolean, default: false },
+    canAddDigitalWallets: { type: Boolean, default: false },
+    canAddBankTransfer: { type: Boolean, default: false },
+    canAddCrypto: { type: Boolean, default: false },
+    canManageSubadmins: { type: Boolean, default: false },
+  },
+
+  status: {
+    type: String,
+    enum: ['Active', 'revoked', 'disabled'],
+    default: 'disabled',
+  },
+
+  LastLogin: { type: Date, default: null },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+})
+// middleware to update the updatedAt field on every save
+adminSchema.pre('save', function (next) {
+  this.updatedAt = Date.now();
+  next();
+})
+const Admin = mongoose.model('Admin', adminSchema);
+ 
+
+// Auth middleware
+const authenticateToken = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(403).json({ message: 'No token provided' });
+
+  jwt.verify(token, process.env.JWT_SECRET_ADMIN, (err, admin) => {
+    if (err) return res.status(403).json({ message: 'Invalid token' });
+    req.admin = admin;
+    next();
+  });
+};
+
+//Token Verification routes
+
+app.get('/admin/verify-token', authenticateToken, (req, res) => {
+  res.status(200).json({ message: 'Token is valid', admin: req.admin });
+}
+);
+
+
+// Role permission checker
+const authorize = (permission) => {
+  return async (req, res, next) => {
+    const adminRecord = await Admin.findById(req.admin.id);
+    if (!adminRecord || !adminRecord.permissions[permission]) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    next();
+  };
+};
+
+//protected route for managing users 
+app.get('/admin/manage-users', authenticateToken, authorize('canManageUsers'), (req, res) => {
+  res.json({ message: 'You have access to manage users' });
+});
+
+//admin login route
+app.post('/admin/login', async (req, res) => {
+    const { username, password } = req.body;
+  
+    try {
+        const admin = await Admin.findOne({username: username.toLowerCase()});
+        if (!admin) {
+            return res.status(404).json({ message: 'Admin not Found' });
+        }
+        const ispasswordIsValid = await bcrypt.compare(password, admin.password);
+        if (!ispasswordIsValid) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+        const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET_ADMIN, { expiresIn: '1d' });
+        res.status(200).json({token, admin: {id: admin._id, username: admin.username, role: admin.role, permissions: admin.permissions}});
+      } catch (error) {
+        console.error('Error during admin login:', error);
+        res.status(500).json({ message: 'Server error' });
+      }
+}
+);
+
+//subadmin creation route
+// This route allows a General Admin to create a new Subadmin
+app.post('/admin/subadmin', authenticateToken, authorize('canManageSubadmins'), async (req, res) => {
+  const { fullName, email, username, password, permissions } = req.body;
+
+  try {
+    const existingAdmin = await Admin.findOne({ email });
+    if (existingAdmin) return res.status(400).json({ message: 'Email already in use' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const subAdmin = new Admin({
+      fullName,
+      email,
+      username,
+      password: hashedPassword,
+      role: 'Sub_admin',
+      permissions,
+      status: 'Active'
+    });
+
+    await subAdmin.save();
+    res.status(201).json({ message: 'Subadmin created successfully', subAdmin });
+  } catch (error) {
+    console.error('Subadmin creation error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+//get all subadmins
+
+app.get('/admin/subadmins', authenticateToken, authorize('canManageSubadmins'), async (req, res) => {
+  try {
+    const subadmins = await Admin.find({ role: 'Sub_admin' });
+    res.status(200).json({ subadmins });
+  } catch (error) {
+    console.error('Error fetching subadmins:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+//update sub admin permissions
+
+app.put('/admin/subadmin/:id/permissions', authenticateToken, authorize('canManageSubadmins'), async (req, res) => {
+  const subadminId = req.params.id;
+  const updatedPermissions = req.body.permissions; 
+   try{
+    const subadmin = await Admin.findById(subadminId);
+    if (!subadmin) return res.status(404).json({ message: 'Subadmin not found' });
+
+    subadmin.permissions = updatedPermissions;
+    await subadmin.save();
+    
+    res.status(200).json({ message: 'Permissions updated successfully', subadmin });
+  } catch (error) {
+    console.error('Error updating subadmin permissions:', error);
+    res.status(500).json({ message: 'Server error' });
+   }
+}
+);
+
+//revoke subadmins
+app.patch('/admin/subadmin/:id/revoke', authenticateToken, authorize('canManageSubadmins'), async (req, res) => {
+  const subadminId = req.params.id;
+
+  try {
+    const subadmin = await Admin.findById(subadminId);
+    if (!subadmin || subadmin.role !== 'Sub_admin') {
+      return res.status(404).json({ message: 'Subadmin not found' });
+    }
+
+    subadmin.status = 'Inactive';
+    await subadmin.save();
+
+    res.status(200).json({ message: 'Subadmin access revoked' });
+  } catch (error) {
+    console.error('Error revoking subadmin:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+//reacitivate subadmins
+
+app.patch('/admin/subadmin/:id/reactivate', authenticateToken, authorize('canManageSubadmins'), async (req, res) => {
+  const subadminId = req.params.id;
+
+  try {
+    const subadmin = await Admin.findById(subadminId);
+    if (!subadmin || subadmin.role !== 'Sub_admin') {
+      return res.status(404).json({ message: 'Subadmin not found' });
+    }
+
+    subadmin.status = 'Active';
+    await subadmin.save();
+
+    res.status(200).json({ message: 'Subadmin reactivated successfully' });
+  } catch (error) {
+    console.error('Error reactivating subadmin:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+
+
+
+
+
 
 
 const PORT = process.env.PORT || 3000;

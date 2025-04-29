@@ -1,3 +1,29 @@
+//Token verification and redirection for admin page
+
+// (async () => {
+//     const token = localStorage.getItem('adminToken');
+//     if (!token) {
+//         return window.location.replace('admin-Log.html');
+//     }
+//     try {
+//         const res = await fetch('http://localhost:3000/admin/verify-token', {
+//           method: 'GET',
+//           headers: {
+//             'Authorization': `Bearer ${token}`
+//           }
+//         });
+//         if (!res.ok) {
+//             localStorage.removeItem('adminToken');
+//             window.location.replace('admin-Log.html');
+//         }
+//     } catch (err) {
+//         console.log('Token Verification Failed', err);
+//         localStorage.removeItem('adminToken');
+//         window.location.replace('admin-Log.html');
+//     }
+// }) ();
+
+
 // DOM Elements
 const sidebar = document.getElementById('sidebar');
 const hamburgerMenu = document.getElementById('hamburger-menu');
@@ -515,6 +541,70 @@ document.addEventListener('DOMContentLoaded', () => {
   
       try {
         const res = await fetch('https://sterling-edge.onrender.com/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}` //  Added token for auth
+          },
+          body: JSON.stringify({ recipients, subject, message }),
+        });
+  
+        const data = await res.json();
+  
+        if (res.ok) {
+          statusEl.textContent = 'Email sent successfully!';
+          statusEl.style.color = 'green';
+          emailForm.reset();
+          quill.root.innerHTML = ''; // Clear the editor after sending
+        } else {
+          statusEl.textContent = data.error || 'Failed to send email.';
+          statusEl.style.color = 'red';
+        }
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = 'Something went wrong!';
+        statusEl.style.color = 'red';
+      }
+    });
+});
+
+//email API connection for noreply email
+
+document.addEventListener('DOMContentLoaded', () => {
+    const emailForm = document.getElementById('email-form');
+  
+    // Initialize Quill editor
+    var quill = new Quill('#email-body', {
+      theme: 'snow',  // 'snow' is a clean and simple theme
+      modules: {
+        toolbar: [
+          [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'align': [] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          ['link'],
+          ['blockquote', 'code-block'],
+          ['image'],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'script': 'sub'}, { 'script': 'super' }],
+          [{ 'indent': '-1'}, { 'indent': '+1' }],
+          [{ 'direction': 'rtl' }],
+          ['clean']  // The "clear formatting" button
+        ]
+      }
+    });
+  
+    emailForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+  
+      // Get the form values
+      const recipients = document.getElementById('email-recipients').value;
+      const subject = document.getElementById('email-subject').value;
+      const message = quill.root.innerHTML; // Capture the HTML content from the Quill editor
+      const statusEl = document.getElementById('email-status');
+  
+      try {
+        const res = await fetch('https://sterling-edge.onrender.com/api/send-noreply-', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

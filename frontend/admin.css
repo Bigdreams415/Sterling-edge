@@ -745,3 +745,15 @@ button:hover {
     font-size: 15px;
   }
 }
+/* sub admin section styling */
+
+.permissions-checkboxes {
+  margin: 10px 0;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.subadmin-list {
+  margin-top: 30px;
+}
