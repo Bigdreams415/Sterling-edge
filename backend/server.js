@@ -27,10 +27,23 @@ app.get('/', (req, res) => {
 // Middleware
 app.use(express.json());
 app.use(bodyParser.json());
+
+// Enable CORS for all routes for Developqent purposes and testing
+
+
+// app.use(cors({
+//     origin: '*',
+//     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization']
+// }));
+
+// Cors for production
+
+// Allow specific origin
 app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+  origin: 'https://sterling-edge-trade.vercel.app', // your frontend domain
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 
