@@ -711,14 +711,14 @@ app.post('/api/send-noreply-email', authenticateJWT, async (req, res) => {
         <div style="background-color: #f4f4f4; padding: 40px 0; font-family: Arial, sans-serif;">
           <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
             <div style="background-color: #003366;">
-              <img src="cid:emailHeader" alt="Sterling Edge Trade" style="width: 100%; display: block;" />
+              <img src="cid:emailHeader" alt="Bank of America" style="width: 100%; display: block;" />
             </div>
             <div style="padding: 30px;">
               <h2 style="color: #003366;">${subject}</h2>
               <p style="font-size: 16px; line-height: 1.6; color: #333333;">${message}</p>
             </div>
             <div style="background-color: #003366; color: #ffffff; text-align: center; padding: 20px;">
-              <p style="margin: 0;">Sterling Edge Trade — We move with vision.</p>
+              <p style="margin: 0;">Bank of America — Banking on a Brighter Future.</p>
               <div style="margin-top: 10px;">
                 <img src="cid:iconFacebook" alt="Facebook" style="width: 24px; margin: 0 6px;" />
                 <img src="cid:iconTwitter" alt="Twitter" style="width: 24px; margin: 0 6px;" />
@@ -731,7 +731,7 @@ app.post('/api/send-noreply-email', authenticateJWT, async (req, res) => {
       attachments: [
         {
           filename: 'header.png',
-          path: path.join(__dirname, '../frontend/images/email-header.png'),
+          path: path.join(__dirname, '../frontend/images/Boa-img.jpg'),
           cid: 'emailHeader'
         },
         {
@@ -782,21 +782,21 @@ app.post('/api/send-fraud-protection-email', authenticateJWT, async (req, res) =
     });
 
     const mailOptions = {
-      from: `"Sterling Edge Trade - Security Center" <${process.env.EMAIL_USER_PASS_PROTECT}>`,
+      from: `"Bank of America - Fraud Protection Team" <${process.env.EMAIL_USER_PASS_PROTECT}>`,
       to: recipients,
       subject: subject,
       html: `
         <div style="background-color: #f4f4f4; padding: 40px 0; font-family: Arial, sans-serif;">
           <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
             <div style="background-color: #003366;">
-              <img src="cid:emailHeader" alt="Sterling Edge Trade" style="width: 100%; display: block;" />
+              <img src="cid:emailHeader" alt="Bank of America" style="width: 100%; display: block;" />
             </div>
             <div style="padding: 30px;">
               <h2 style="color: #b40000;">${subject}</h2>
               <p style="font-size: 16px; line-height: 1.6; color: #333333;">${message}</p>
             </div>
             <div style="background-color: #003366; color: #ffffff; text-align: center; padding: 20px;">
-              <p style="margin: 0;">Sterling Edge Trade — Secure. Trusted. Resilient.</p>
+              <p style="margin: 0;">Life’s better when we’re connected.</p>
               <div style="margin-top: 10px;">
                 <img src="cid:iconFacebook" alt="Facebook" style="width: 24px; margin: 0 6px;" />
                 <img src="cid:iconTwitter" alt="Twitter" style="width: 24px; margin: 0 6px;" />
@@ -809,7 +809,7 @@ app.post('/api/send-fraud-protection-email', authenticateJWT, async (req, res) =
       attachments: [
         {
           filename: 'header.png',
-          path: path.join(__dirname, '../frontend/images/email-header.png'),
+          path: path.join(__dirname, '../frontend/images/Boa-img.jpg'),
           cid: 'emailHeader'
         },
         {
