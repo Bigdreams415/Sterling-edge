@@ -690,3 +690,117 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
   
+
+// Receipt Generation js
+document.addEventListener('DOMContentLoaded', function() {
+    // Generate Receipt Button
+    document.getElementById('generate-btn').addEventListener('click', function() {
+      // Get form values
+      const clientName = document.getElementById('client-name').value;
+      const amount = parseFloat(document.getElementById('payment-amount').value);
+      const description = document.getElementById('payment-description').value;
+      const method = document.getElementById('payment-method').value;
+      const trackingId = document.getElementById('tracking-id').value;
+      
+      // Generate receipt HTML
+      const receiptHTML = `
+        <div class="receipt-header">
+          <div class="receipt-logo">STERLING EDGE TRADE</div>
+          <div class="receipt-title">PAYMENT RECEIPT</div>
+          <div class="receipt-meta">
+            <span>Receipt #: R${Math.floor(Math.random() * 1000)}</span>
+            <span>Date: ${new Date().toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'short', 
+              day: 'numeric' 
+            })}</span>
+          </div>
+        </div>
+        
+        <div class="receipt-body">
+          <div class="receipt-row">
+            <span class="receipt-label">Paid to:</span>
+            <span class="receipt-value">${clientName}</span>
+          </div>
+          
+          <div class="receipt-row">
+            <span class="receipt-label">Description:</span>
+            <span class="receipt-value">${description}</span>
+          </div>
+          
+          <div class="receipt-row">
+            <span class="receipt-label">Amount:</span>
+            <span class="receipt-value receipt-amount">$${amount.toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            })}</span>
+          </div>
+          
+          <div class="receipt-row">
+            <span class="receipt-label">Method:</span>
+            <span class="receipt-value">${method}</span>
+          </div>
+          
+          <div class="tracking-id">
+            Tracking ID: <strong>${trackingId || 'N/A'}</strong>
+          </div>
+        </div>
+        
+        <div class="receipt-footer">
+          <p>Thank you for trading with us.</p>
+          <p>STERLING EDGE TRADE LLC</p>
+          <p>Financial Street, New York, NY</p>
+          <p>contact@tradingfirm.com | (555) 123-4567</p>
+        </div>
+      `;
+      
+      // Insert into receipt container
+      document.getElementById('receipt-printable').innerHTML = receiptHTML;
+      
+      // Show receipt preview
+      document.getElementById('receipt-output').classList.remove('hidden');
+    });
+  
+    // Save as PNG
+    document.getElementById('save-png').addEventListener('click', function() {
+      html2canvas(document.getElementById('receipt-printable')).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `sterling-payment-${new Date().getTime()}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    });
+  
+    // Save as PDF
+    document.getElementById('save-pdf').addEventListener('click', async function() {
+        try {
+            // Use html2canvas with better rendering options
+            const canvas = await html2canvas(document.getElementById('receipt-printable'), {
+                scale: 2, // Higher quality
+                logging: false,
+                useCORS: true,
+                allowTaint: true
+            });
+            
+            // Initialize jsPDF
+            const pdf = new window.jspdf.jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a5'
+            });
+            
+            // Calculate dimensions to fit A5
+            const imgWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            // Add image to PDF
+            pdf.addImage(canvas, 'PNG', 0, 0, imgWidth, imgHeight);
+            
+            // Save the PDF
+            pdf.save(`payment-receipt-${new Date().getTime()}.pdf`);
+        } catch (error) {
+            console.error('PDF generation error:', error);
+            alert('Failed to generate PDF. Please check console for details.');
+        }
+    });
+  });
