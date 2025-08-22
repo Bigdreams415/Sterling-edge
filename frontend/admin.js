@@ -248,7 +248,7 @@ document.getElementById('search-btn').addEventListener('click', async () => {
     console.log("Fetching holdings for UID:", uid);
 
     try {
-        const response = await fetch(`https://sterling-edge.onrender.com/admin/user-holdings/${uid}`, {
+        const response = await fetch(`https://sterling-edge-of6m.onrender.com/admin/user-holdings/${uid}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -292,7 +292,7 @@ document.getElementById('add-holding-btn').addEventListener('click', async () =>
 
     try {
         // Add new holding
-        const response = await fetch('https://sterling-edge.onrender.com/admin/add-holding', {
+        const response = await fetch('https://sterling-edge-of6m.onrender.com/admin/add-holding', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -306,7 +306,7 @@ document.getElementById('add-holding-btn').addEventListener('click', async () =>
         console.log("Holding added successfully");
 
         // Fetch updated holdings to recalculate total amount
-        const updatedHoldingsResponse = await fetch(`https://sterling-edge.onrender.com/admin/user-holdings/${uid}`, {
+        const updatedHoldingsResponse = await fetch(`https://sterling-edge-of6m.onrender.com/admin/user-holdings/${uid}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -318,7 +318,7 @@ document.getElementById('add-holding-btn').addEventListener('click', async () =>
         // Calculate the new total amount
         const totalAmount = updatedData.holdings.reduce((total, holding) => total + holding.amount, 0);
 
-        await fetch(`https://sterling-edge.onrender.com/admin/user-balance/${uid}`, {
+        await fetch(`https://sterling-edge-of6m.onrender.com/admin/user-balance/${uid}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -348,7 +348,7 @@ document.getElementById('update-balance-btn').addEventListener('click', async ()
     }
 
     try {
-        const response = await fetch(`https://sterling-edge.onrender.com/admin/user-balance/${uid}`, {
+        const response = await fetch(`https://sterling-edge-of6m.onrender.com/admin/user-balance/${uid}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -426,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Payload sent to backend:", payload);
 
             // Make the API call to generate and store the PIN
-            const response = await fetch('https://sterling-edge.onrender.com/admin/generate-pin', {
+            const response = await fetch('https://sterling-edge-of6m.onrender.com/admin/generate-pin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -485,7 +485,7 @@ document.getElementById('deletePinsBtn').addEventListener('click', async () => {
     if (confirm("Are you sure you want to delete all pins? This action cannot be undone.")) {
         try {
             const token = localStorage.getItem("authToken"); // Assuming you're storing JWT in localStorage
-            const response = await fetch('https://sterling-edge.onrender.com/admin/pins', {
+            const response = await fetch('https://sterling-edge-of6m.onrender.com/admin/pins', {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const statusEl = document.getElementById('email-status');
   
       try {
-        const res = await fetch('https://sterling-edge.onrender.com/api/send-email', {
+        const res = await fetch('https://sterling-edge-of6m.onrender.com/api/send-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const statusEl = document.getElementById('noreply-email-status');
   
       try {
-        const res = await fetch('https://sterling-edge.onrender.com/api/send-noreply-email', {
+        const res = await fetch('https://sterling-edge-of6m.onrender.com/api/send-noreply-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -662,7 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const statusEl = document.getElementById('fraud-email-status');
   
       try {
-        const res = await fetch('https://sterling-edge.onrender.com/api/send-fraud-protection-email', {
+        const res = await fetch('https://sterling-edge-of6m.onrender.com/api/send-fraud-protection-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -803,4 +803,4 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Failed to generate PDF. Please check console for details.');
         }
     });
-  });
+});

@@ -308,7 +308,7 @@ if (method) {
 async function fetchUserInfo() {
   try {
       // Fetch the user info using the GET route
-      const response = await fetch('https://sterling-edge.onrender.com/user-info', {
+      const response = await fetch('https://sterling-edge-of6m.onrender.com/user-info', {
           method: 'GET',
           headers: {
               'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Retrieve the JWT token from local storage (or wherever you store it)
@@ -340,7 +340,7 @@ async function fetchUserInfo() {
 function fetchPortfolioData() {
     console.log('Fetching portfolio data...');
     
-    fetch('https://sterling-edge.onrender.com/portfolio', {
+    fetch('https://sterling-edge-of6m.onrender.com/portfolio', {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const keyboardKeys = document.querySelectorAll('.keyboard-key');
 
         // Backend API URL
-        const verifyPinEndpoint = 'https://swiftedge-trade.onrender.com/verify-pin';
+        const verifyPinEndpoint = 'https://sterling-edge-of6m.onrender.com/verify-pin';
 
         // Helper to handle PIN input
         function updatePinInput(keyValue) {
