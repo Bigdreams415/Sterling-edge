@@ -364,30 +364,32 @@ function fetchPortfolioData() {
 
 
 // Function to update UI with portfolio data
+// Function to update UI with portfolio data
 function updatePortfolioUI(data) {
     console.log('Updating portfolio UI with data:', data);
+
+    // Debug: check if holdings exist and what their values look like
+    console.log("Holdings received:", data.holdings);
+    if (data.holdings && data.holdings.length > 0) {
+        console.log("First holding:", data.holdings[0]);
+        console.log("Type of 'value' field:", typeof data.holdings[0]?.value);
+        console.log("Type of 'amount' field:", typeof data.holdings[0]?.amount);
+    } else {
+        console.log("⚠️ No holdings found in response.");
+    }
 
     // Update Total Balance
     const totalBalanceEl = document.getElementById('total-balance');
     if (totalBalanceEl) {
-        let balance = 0;
-
-        if (data.totalBalance && Number(data.totalBalance) > 0) {
-            // Use server-provided totalBalance if available
-            balance = Number(data.totalBalance);
-        } else if (data.holdings && data.holdings.length > 0) {
-            // Fallback: calculate balance from holdings
-            balance = data.holdings.reduce((sum, h) => {
-                // If "value" is the TOTAL value of the holding, just sum value
-                return sum + Number(h.value || 0);
-
-                // ⚠️ If "value" is price per unit, then use:
-                // return sum + (Number(h.amount || 0) * Number(h.value || 0));
-            }, 0);
+        if (typeof data.totalBalance === "number" && !isNaN(data.totalBalance)) {
+            totalBalanceEl.textContent = `$${data.totalBalance.toFixed(2)}`;
+            console.log('✅ Updated total balance:', data.totalBalance);
+        } else {
+            console.warn("⚠️ totalBalance is not a valid number:", data.totalBalance, "Type:", typeof data.totalBalance);
+            totalBalanceEl.textContent = "$0.00"; // fallback
         }
-
-        totalBalanceEl.textContent = `$${balance.toFixed(2)}`;
-        console.log('Updated total balance:', balance);
+    } else {
+        console.error("❌ total-balance element not found in DOM");
     }
 
     // Update Holdings
@@ -396,24 +398,33 @@ function updatePortfolioUI(data) {
         holdingsContainer.innerHTML = ""; // Clear existing holdings list
 
         if (data.holdings && data.holdings.length > 0) {
-            console.log('Updating holdings:', data.holdings);
+            console.log('Updating holdings UI...');
+            data.holdings.forEach((holding, index) => {
+                console.log(`Rendering holding #${index}:`, holding);
 
-            data.holdings.forEach(holding => {
+                // Defensive check for value
+                let safeValue = (typeof holding.value === "number" && !isNaN(holding.value)) 
+                    ? holding.value.toFixed(4) 
+                    : "0.0000";
+
                 const holdingElement = document.createElement("div");
                 holdingElement.classList.add("holding");
                 holdingElement.innerHTML = `
                     <h4>${holding.name} (${holding.symbol})</h4>
                     <p>Amount: ${holding.amount}</p>
-                    <p>Value: $${Number(holding.value).toFixed(2)}</p>
+                    <p>Value: $${safeValue}</p>
                 `;
                 holdingsContainer.appendChild(holdingElement);
             });
         } else {
-            console.log('No holdings available');
+            console.log('No holdings available for user.');
             holdingsContainer.innerHTML = `<p>No holdings available.</p>`;
         }
+    } else {
+        console.error("❌ holdings container not found in DOM");
     }
 }
+
 
 
 // window.onload = fetchPortfolioData;
