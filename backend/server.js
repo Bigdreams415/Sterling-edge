@@ -632,7 +632,7 @@ const SALT_ROUNDS = 10;
 
 // Generate PIN API
 
-app.post('/admin/generate-pins', authenticateJWT, async (req, res) => {
+app.post('/admin/generate-pin', authenticateJWT, async (req, res) => {
   const { pinLength, expirationTime } = req.body;
 
   console.log("===== BACKEND LOGS =====");

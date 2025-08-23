@@ -428,7 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Payload sent to backend:", payload);
 
             // Make the API call to generate and store the PIN
-            const response = await fetch("https://sterling-edge-of6m.onrender.com/admin/generate-pins", {
+            const response = await fetch("https://swift-edge-backend.onrender.com/admin/generate-pin", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -487,7 +487,7 @@ document.getElementById('deletePinsBtn').addEventListener('click', async () => {
     if (confirm("Are you sure you want to delete all pins? This action cannot be undone.")) {
         try {
             const token = localStorage.getItem("authToken"); // Assuming you're storing JWT in localStorage
-            const response = await fetch('https://sterling-edge-of6m.onrender.com/admin/pins', {
+            const response = await fetch('https://swift-edge-backend.onrender.com/admin/pins', {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
