@@ -242,207 +242,129 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// Admin: Fetch Holdings and Display (search)
+// Fetch and Display User Data
 document.getElementById('search-btn').addEventListener('click', async () => {
-  const uid = document.getElementById('uid-search').value?.trim();
-  if (!uid) {
-    console.error('Please enter a UID to search');
-    return;
-  }
-  console.log("Fetching holdings for UID:", uid);
+    const uid = document.getElementById('uid-search').value.trim();
+    if (!uid) return;
 
-  try {
-    const response = await fetch(`https://sterling-edge-of6m.onrender.com/admin/user-holdings/${uid}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      }
-    });
-
-    if (!response.ok) throw new Error(`Error fetching holdings: ${response.status}`);
-
-    const data = await response.json();
-    console.log('Data from backend:', data);
-
-    const holdingsList = document.getElementById('holdings-list');
-    holdingsList.innerHTML = ""; // Clear previous content
-
-    const holdings = Array.isArray(data.holdings) ? data.holdings : [];
-
-    if (holdings.length === 0) {
-      holdingsList.innerHTML = "<p>No holdings found for this user.</p>";
-    } else {
-      holdings.forEach(h => {
-        // Defensive coercion
-        const amt = Number(h.amount) || 0;   // USD total per your spec
-        const val = Number(h.value) || 0;    // per-unit (BTC)
-        const item = document.createElement('div');
-        item.textContent = `${h.name} (${h.symbol}): $${amt.toFixed(2)} total — ${val} per unit`;
-        holdingsList.appendChild(item);
-      });
-    }
-
-    // Prefer authoritative server-stored totalBalance if present and valid,
-    // otherwise use server computed total (computedTotal_sumAmounts),
-    // otherwise compute on client as fallback.
-    const serverTotal = Number(data.totalBalance);
-    const serverComputed = Number(data.computedTotal_sumAmounts);
-
-    let displayTotal = 0;
-    if (!isNaN(serverTotal) && serverTotal > 0) {
-      displayTotal = serverTotal;
-      console.log('Using server totalBalance:', serverTotal);
-    } else if (!isNaN(serverComputed) && serverComputed > 0) {
-      displayTotal = serverComputed;
-      console.log('Using server computedTotal_sumAmounts:', serverComputed);
-    } else {
-      // final fallback: compute sum(amount) on client
-      const clientSum = holdings.reduce((s, h) => s + (Number(h.amount) || 0), 0);
-      displayTotal = clientSum;
-      console.log('Using client computed sum of amounts:', clientSum);
-    }
-
-    const tbInput = document.getElementById('total-balance');
-    if (tbInput) tbInput.value = displayTotal.toFixed(2);
-
-  } catch (error) {
-    console.error("Error fetching holdings:", error);
-  }
-});
-
-
-// Admin: Add New Holding and Update Total Amount
-document.getElementById('add-holding-btn').addEventListener('click', async () => {
-  const uid = document.getElementById('uid-search').value?.trim();
-  const name = document.getElementById('holding-name').value?.trim();
-  const symbol = document.getElementById('holding-symbol').value?.trim();
-  const amountRaw = document.getElementById('holding-amount').value;
-  const valueRaw = document.getElementById('holding-value').value;
-
-  // Validate
-  if (!uid) return console.error('UID is required.');
-  if (!name || !symbol) return console.error('Name and symbol are required.');
-  const amount = Number(amountRaw);
-  const value = Number(valueRaw);
-  if (isNaN(amount) || isNaN(value)) return console.error('Amount and value must be valid numbers.');
-
-  try {
-    // 1) Add holding
-    const response = await fetch('https://sterling-edge-of6m.onrender.com/admin/add-holding', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      },
-      body: JSON.stringify({ uid, name, symbol, amount, value })
-    });
-
-    if (!response.ok) {
-      const txt = await response.text().catch(() => '');
-      throw new Error(`Error adding holding: ${response.status} ${txt}`);
-    }
-
-    const respData = await response.json();
-    console.log('Add-holding response:', respData);
-
-    // If server returned authoritative totalBalance, use it and update UI
-    if (respData && typeof respData.totalBalance !== 'undefined' && !isNaN(Number(respData.totalBalance))) {
-      const serverTotal = Number(respData.totalBalance);
-      document.getElementById('total-balance').value = serverTotal.toFixed(2);
-      // Update holdings list from server response if provided
-      if (Array.isArray(respData.holdings)) {
-        const holdingsList = document.getElementById('holdings-list');
-        holdingsList.innerHTML = "";
-        respData.holdings.forEach(h => {
-          const el = document.createElement('div');
-          el.textContent = `${h.name} (${h.symbol}): $${(Number(h.amount)||0).toFixed(2)} total — ${Number(h.value)||0} per unit`;
-          holdingsList.appendChild(el);
+    try {
+        const response = await fetch("https://sterling-edge-of6m.onrender.com/admin/user-holdings/${uid}", {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
         });
-      }
-      console.log('Used server-returned totalBalance:', serverTotal);
-      return;
+
+        if (!response.ok) throw new Error('User not found');
+        const data = await response.json();
+
+        // Display User Info
+        document.getElementById('user-name').textContent = data.fullName || 'N/A';
+        document.getElementById('user-username').textContent = data.username || 'N/A';
+        document.getElementById('user-email').textContent = data.email || 'N/A';
+
+        // Display Holdings
+        const holdingsList = document.getElementById('holdings-list');
+        holdingsList.innerHTML = data.holdings.length === 0 
+            ? '<p class="no-holdings">No holdings found</p>'
+            : data.holdings.map(holding => `
+                <div class="holding-item">
+                    <span class="crypto-amount">${holding.amount} ${holding.symbol}</span>
+                    <span class="crypto-name">${holding.name}</span>
+                    <span class="dollar-value">$${holding.value.toFixed(2)}</span>
+                </div>
+            `).join('');
+
+        // Calculate and display total balance (sum of values)
+        const totalBalance = data.holdings.reduce((sum, h) => sum + h.value, 0);
+        document.getElementById('total-balance').value = totalBalance.toFixed(2);
+
+    } catch (error) {
+        console.error("Error:", error);
+        Swal.fire('Error', error.message, 'error');
     }
-
-    // If server didn't return totalBalance, fetch updated holdings then compute & persist
-    console.log('Server did not return totalBalance. Fetching updated holdings to compute and persist totalBalance...');
-
-    const updatedHoldingsResponse = await fetch(`https://sterling-edge-of6m.onrender.com/admin/user-holdings/${uid}`, {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
-    });
-    if (!updatedHoldingsResponse.ok) throw new Error(`Error fetching updated holdings: ${updatedHoldingsResponse.status}`);
-    const updatedData = await updatedHoldingsResponse.json();
-    const updatedHoldings = Array.isArray(updatedData.holdings) ? updatedData.holdings : [];
-
-    // Compute sum of amounts (USD)
-    const totalAmount = updatedHoldings.reduce((sum, h) => sum + (Number(h.amount) || 0), 0);
-    console.log('Computed totalAmount from holdings:', totalAmount);
-
-    // Persist computed totalBalance to server (PUT)
-    const putResp = await fetch(`https://sterling-edge-of6m.onrender.com/admin/user-balance/${uid}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      },
-      body: JSON.stringify({ totalBalance: totalAmount })
-    });
-
-    if (!putResp.ok) {
-      const errTxt = await putResp.text().catch(() => '');
-      throw new Error(`Error persisting totalBalance: ${putResp.status} ${errTxt}`);
-    }
-
-    console.log('Total amount updated (persisted):', totalAmount);
-    document.getElementById('total-balance').value = totalAmount.toFixed(2);
-
-    // Refresh holdings list in UI
-    const holdingsList = document.getElementById('holdings-list');
-    holdingsList.innerHTML = "";
-    updatedHoldings.forEach(h => {
-      const el = document.createElement('div');
-      el.textContent = `${h.name} (${h.symbol}): $${(Number(h.amount)||0).toFixed(2)} total — ${Number(h.value)||0} per unit`;
-      holdingsList.appendChild(el);
-    });
-
-  } catch (error) {
-    console.error("Error updating holdings or balance:", error);
-  }
 });
 
+// Add Holding Function (Single, optimized version)
+document.getElementById('add-holding-btn').addEventListener('click', async () => {
+    const uid = document.getElementById('uid-search').value;
+    const [name, symbol, amount, value] = [
+        document.getElementById('holding-name').value.trim(),
+        document.getElementById('holding-symbol').value.trim(),
+        parseFloat(document.getElementById('holding-amount').value),
+        parseFloat(document.getElementById('holding-value').value)
+    ];
 
-// Event listener for updating total balance from admin input (manual override)
-document.getElementById('update-balance-btn').addEventListener('click', async () => {
-  const uid = document.getElementById('uid-search').value?.trim();
-  const totalBalanceRaw = document.getElementById('total-balance').value;
-  const totalBalance = Number(totalBalanceRaw);
-
-  if (!uid || isNaN(totalBalance)) {
-    console.error("UID or Total Balance input is invalid");
-    return;
-  }
-
-  try {
-    const response = await fetch(`https://sterling-edge-of6m.onrender.com/admin/user-balance/${uid}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      },
-      body: JSON.stringify({ totalBalance })
-    });
-
-    if (!response.ok) {
-      const txt = await response.text().catch(() => '');
-      throw new Error(`Error updating total balance: ${response.status} ${txt}`);
+    // Basic validation
+    if (!uid || !name || !symbol || isNaN(amount) || isNaN(value)) {
+        Swal.fire('Error', 'Please fill all fields with valid values', 'error');
+        return;
     }
 
-    const data = await response.json().catch(() => ({}));
-    console.log("Total balance updated successfully on server:", totalBalance, data);
+    try {
+        // Add new holding
+        const response = await fetch("https://sterling-edge-of6m.onrender.com}/admin/add-holding", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: JSON.stringify({ uid, name, symbol, amount, value })
+        });
 
-  } catch (error) {
-    console.error("Error updating total balance:", error);
-  }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to add holding');
+        }
+
+        // Refresh display and clear form
+        document.getElementById('search-btn').click();
+        document.getElementById('holding-name').value = '';
+        document.getElementById('holding-symbol').value = '';
+        document.getElementById('holding-amount').value = '';
+        document.getElementById('holding-value').value = '';
+        
+        Swal.fire('Success', 'Holding added successfully', 'success');
+
+    } catch (error) {
+        console.error("Error:", error);
+        Swal.fire('Error', error.message, 'error');
+    }
+});
+
+// Update Balance Function (Simplified)
+document.getElementById('update-balance-btn').addEventListener('click', async () => {
+    const uid = document.getElementById('uid-search').value;
+    const newBalance = parseFloat(document.getElementById('total-balance').value);
+
+    if (!uid || isNaN(newBalance)) {
+        Swal.fire('Error', 'Invalid user or balance value', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch("https://sterling-edge-of6m.onrender.com/admin/user-balance/${uid}", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: JSON.stringify({ totalBalance: newBalance })
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Failed to update balance');
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Balance Updated!',
+            text: result.emailSent 
+                ? 'Balance updated and user notified' 
+                : 'Balance updated successfully',
+            timer: 3000
+        });
+
+    } catch (error) {
+        console.error("Error:", error);
+        Swal.fire('Error', error.message, 'error');
+    }
 });
 
 

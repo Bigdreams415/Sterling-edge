@@ -308,10 +308,10 @@ if (method) {
 async function fetchUserInfo() {
   try {
       // Fetch the user info using the GET route
-      const response = await fetch('https://sterling-edge-of6m.onrender.com/user-info', {
+      const response = await fetch(`${API_BASE_URL}/user-info`, {
           method: 'GET',
           headers: {
-              'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Retrieve the JWT token from local storage (or wherever you store it)
+              'Authorization': `Bearer ${localStorage.getItem('authToken')}`,  
           }
       });
 
@@ -325,97 +325,77 @@ async function fetchUserInfo() {
       document.getElementById('username').innerText = data.username;
       document.getElementById('UID').innerText = data.uid;
       document.getElementById('status').innerText = data.status;
-      document.getElementById('last-login').innerText = data.lastLogin || 'N/A'; // If last login is null, show N/A
+      document.getElementById('last-login').innerText = data.lastLogin || 'N/A';  
 
   } catch (error) {
       console.error('Error fetching user info:', error);
-      // Optionally show an error message or fallback
   }
 }
 
 
 function fetchPortfolioData() {
-  console.log('Fetching portfolio data...');
-  
-  fetch('https://sterling-edge-of6m.onrender.com/portfolio', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-      'Cache-Control': 'no-cache'
-    }
-  })
-  .then(async response => {
-    console.log('Response status:', response.status);
-    if (!response.ok) {
-      throw new Error('Failed to fetch portfolio data');
-    }
-    const data = await response.json();
-    console.log('Portfolio Data:', data);
-    updatePortfolioUI(data);
-  })
-  .catch(error => {
-    console.error('Error fetching portfolio data:', error);
-    alert('Failed to fetch portfolio data. Please try again.');
-  });
-}
+    console.log('Fetching portfolio data...');
+    
+    fetch("https://sterling-edge-of6m.onrender.com/portfolio", {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
 
-function updatePortfolioUI(data) {
-  console.log('Updating portfolio UI with data:', data);
-
-  // Debugging holdings/types
-  console.log("Holdings received:", data.holdings);
-  if (data.holdings && data.holdings.length > 0) {
-    console.log("First holding:", data.holdings[0]);
-    console.log("Type of 'amount' field:", typeof data.holdings[0]?.amount);
-    console.log("Type of 'value' field:", typeof data.holdings[0]?.value);
-  }
-
-  // Compute sum of amounts (USD)
-  const computedSumAmounts = Array.isArray(data.holdings)
-    ? data.holdings.reduce((s, h) => s + (Number(h.amount) || 0), 0)
-    : 0;
-
-  const dbTotal = Number(data.totalBalance) || 0;
-  console.log('Totals -> dbTotal:', dbTotal, 'computedSumAmounts:', computedSumAmounts);
-
-  // Choose which to display:
-  let displayTotal = dbTotal > 0 ? dbTotal : computedSumAmounts;
-
-  const totalBalanceEl = document.getElementById('total-balance');
-  if (totalBalanceEl) {
-    totalBalanceEl.textContent = `$${displayTotal.toFixed(2)}`;
-  } else {
-    console.error('total-balance element not found');
-  }
-
-  // Render holdings
-  const holdingsContainer = document.querySelector('.holdings');
-  if (!holdingsContainer) {
-    console.error('holdings container not found');
-    return;
-  }
-  holdingsContainer.innerHTML = '';
-
-  if (data.holdings && data.holdings.length > 0) {
-    data.holdings.forEach(h => {
-      const amt = Number(h.amount) || 0;   // USD total
-      const val = Number(h.value) || 0;   // per-unit
-
-      const el = document.createElement('div');
-      el.classList.add('holding');
-      el.innerHTML = `
-        <h4>${h.name} (${h.symbol})</h4>
-        <p>Amount: $${amt.toFixed(2)}</p>
-        <p>Per-unit: ${val}</p>
-      `;
-      holdingsContainer.appendChild(el);
+        if (!response.ok) {
+            console.error('Failed to fetch portfolio data. Status:', response.status);
+            throw new Error('Failed to fetch portfolio data');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Portfolio Data:', data);  
+        updatePortfolioUI(data);  
+    })
+    .catch(error => {
+        console.error('Error fetching portfolio data:', error);
+        alert('Failed to fetch portfolio data. Please try again.');
     });
-  } else {
-    holdingsContainer.innerHTML = '<p>No holdings available.</p>';
-  }
 }
 
+// Function to update UI with portfolio data
+function updatePortfolioUI(data) {
+    console.log('Updating portfolio UI with data:', data);
 
+    // Update Total Balance
+    const totalBalanceEl = document.getElementById('total-balance');
+    if (totalBalanceEl) {
+        totalBalanceEl.textContent = `$${data.totalBalance.toFixed(2)}`;
+        console.log('Updated total balance:', data.totalBalance);
+    }
+
+    // Update Holdings
+    const holdingsContainer = document.querySelector(".holdings");
+    if (holdingsContainer) {
+        holdingsContainer.innerHTML = "";
+
+        if (data.holdings && data.holdings.length > 0) {
+            console.log('Updating holdings:', data.holdings);
+
+            data.holdings.forEach(holding => {
+                const holdingElement = document.createElement("div");
+                holdingElement.classList.add("holding");
+                holdingElement.innerHTML = `
+                    <h4>${holding.name} (${holding.symbol})</h4>
+                    <p>Amount: ${holding.amount}</p>
+                    <p>Value: $${holding.value.toFixed(2)}</p>
+                `;
+                holdingsContainer.appendChild(holdingElement);
+            });
+        } else {
+            console.log('No holdings available');
+            holdingsContainer.innerHTML = `<p>No holdings available.</p>`;
+        }
+    }
+}
 
 
 // window.onload = fetchPortfolioData;
@@ -425,6 +405,7 @@ window.onload = function () {
     fetchPortfolioData();
     checkTokenExpiration();
 };
+
 
 
 
