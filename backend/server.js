@@ -41,7 +41,7 @@ app.use(bodyParser.json());
 
 // Allow specific origin
 app.use(cors({
-  origin: 'https://sterling-edge-trade.vercel.app', // your frontend domain
+  origin: 'https://sterling-edge-trade.vercel.app',  
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

@@ -333,9 +333,6 @@ async function fetchUserInfo() {
   }
 }
 
-// Call the function to fetch and update the user information when the page loads
-// window.onload = fetchUserInfo;
-
 
 function fetchPortfolioData() {
     console.log('Fetching portfolio data...');
@@ -365,6 +362,7 @@ function fetchPortfolioData() {
     });
 }
 
+
 // Function to update UI with portfolio data
 function updatePortfolioUI(data) {
     console.log('Updating portfolio UI with data:', data);
@@ -372,8 +370,24 @@ function updatePortfolioUI(data) {
     // Update Total Balance
     const totalBalanceEl = document.getElementById('total-balance');
     if (totalBalanceEl) {
-        totalBalanceEl.textContent = `$${data.totalBalance.toFixed(2)}`;
-        console.log('Updated total balance:', data.totalBalance);
+        let balance = 0;
+
+        if (data.totalBalance && Number(data.totalBalance) > 0) {
+            // Use server-provided totalBalance if available
+            balance = Number(data.totalBalance);
+        } else if (data.holdings && data.holdings.length > 0) {
+            // Fallback: calculate balance from holdings
+            balance = data.holdings.reduce((sum, h) => {
+                // If "value" is the TOTAL value of the holding, just sum value
+                return sum + Number(h.value || 0);
+
+                // ⚠️ If "value" is price per unit, then use:
+                // return sum + (Number(h.amount || 0) * Number(h.value || 0));
+            }, 0);
+        }
+
+        totalBalanceEl.textContent = `$${balance.toFixed(2)}`;
+        console.log('Updated total balance:', balance);
     }
 
     // Update Holdings
@@ -390,7 +404,7 @@ function updatePortfolioUI(data) {
                 holdingElement.innerHTML = `
                     <h4>${holding.name} (${holding.symbol})</h4>
                     <p>Amount: ${holding.amount}</p>
-                    <p>Value: $${holding.value.toFixed(4)}</p>
+                    <p>Value: $${Number(holding.value).toFixed(2)}</p>
                 `;
                 holdingsContainer.appendChild(holdingElement);
             });
