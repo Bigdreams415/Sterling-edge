@@ -248,7 +248,7 @@ document.getElementById('search-btn').addEventListener('click', async () => {
     if (!uid) return;
 
     try {
-        const response = await fetch("https://sterling-edge-of6m.onrender.com/admin/user-holdings/${uid}", {
+        const response = await fetch(`https://sterling-edge-of6m.onrender.com/admin/user-holdings/${uid}`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
         });
 
@@ -300,7 +300,7 @@ document.getElementById('add-holding-btn').addEventListener('click', async () =>
 
     try {
         // Add new holding
-        const response = await fetch("https://sterling-edge-of6m.onrender.com}/admin/add-holding", {
+        const response = await fetch("https://sterling-edge-of6m.onrender.com/admin/add-holding", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -340,7 +340,7 @@ document.getElementById('update-balance-btn').addEventListener('click', async ()
     }
 
     try {
-        const response = await fetch("https://sterling-edge-of6m.onrender.com/admin/user-balance/${uid}", {
+        const response = await fetch(`https://sterling-edge-of6m.onrender.com/admin/user-balance/${uid}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
