@@ -308,7 +308,7 @@ if (method) {
 async function fetchUserInfo() {
   try {
       // Fetch the user info using the GET route
-      const response = await fetch(`${API_BASE_URL}/user-info`, {
+      const response = await fetch("https://sterling-edge-of6m.onrender.com/user-info", {
           method: 'GET',
           headers: {
               'Authorization': `Bearer ${localStorage.getItem('authToken')}`,  
