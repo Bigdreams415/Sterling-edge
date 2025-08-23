@@ -335,95 +335,86 @@ async function fetchUserInfo() {
 
 
 function fetchPortfolioData() {
-    console.log('Fetching portfolio data...');
-    
-    fetch('https://sterling-edge-of6m.onrender.com/portfolio', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
-    })
-    .then(response => {
-        console.log('Response status:', response.status);
-
-        if (!response.ok) {
-            console.error('Failed to fetch portfolio data. Status:', response.status);
-            throw new Error('Failed to fetch portfolio data');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Portfolio Data:', data); // Log fetched data
-        updatePortfolioUI(data); // Update UI with portfolio data
-    })
-    .catch(error => {
-        console.error('Error fetching portfolio data:', error);
-        alert('Failed to fetch portfolio data. Please try again.');
-    });
+  console.log('Fetching portfolio data...');
+  
+  fetch('https://sterling-edge-of6m.onrender.com/portfolio', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      'Cache-Control': 'no-cache'
+    }
+  })
+  .then(async response => {
+    console.log('Response status:', response.status);
+    if (!response.ok) {
+      throw new Error('Failed to fetch portfolio data');
+    }
+    const data = await response.json();
+    console.log('Portfolio Data:', data);
+    updatePortfolioUI(data);
+  })
+  .catch(error => {
+    console.error('Error fetching portfolio data:', error);
+    alert('Failed to fetch portfolio data. Please try again.');
+  });
 }
 
-
-// Function to update UI with portfolio data
-// Function to update UI with portfolio data
 function updatePortfolioUI(data) {
-    console.log('Updating portfolio UI with data:', data);
+  console.log('Updating portfolio UI with data:', data);
 
-    // Debug: check if holdings exist and what their values look like
-    console.log("Holdings received:", data.holdings);
-    if (data.holdings && data.holdings.length > 0) {
-        console.log("First holding:", data.holdings[0]);
-        console.log("Type of 'value' field:", typeof data.holdings[0]?.value);
-        console.log("Type of 'amount' field:", typeof data.holdings[0]?.amount);
-    } else {
-        console.log("⚠️ No holdings found in response.");
-    }
+  // Debugging holdings/types
+  console.log("Holdings received:", data.holdings);
+  if (data.holdings && data.holdings.length > 0) {
+    console.log("First holding:", data.holdings[0]);
+    console.log("Type of 'amount' field:", typeof data.holdings[0]?.amount);
+    console.log("Type of 'value' field:", typeof data.holdings[0]?.value);
+  }
 
-    // Update Total Balance
-    const totalBalanceEl = document.getElementById('total-balance');
-    if (totalBalanceEl) {
-        if (typeof data.totalBalance === "number" && !isNaN(data.totalBalance)) {
-            totalBalanceEl.textContent = `$${data.totalBalance.toFixed(2)}`;
-            console.log('✅ Updated total balance:', data.totalBalance);
-        } else {
-            console.warn("⚠️ totalBalance is not a valid number:", data.totalBalance, "Type:", typeof data.totalBalance);
-            totalBalanceEl.textContent = "$0.00"; // fallback
-        }
-    } else {
-        console.error("❌ total-balance element not found in DOM");
-    }
+  // Compute sum of amounts (USD)
+  const computedSumAmounts = Array.isArray(data.holdings)
+    ? data.holdings.reduce((s, h) => s + (Number(h.amount) || 0), 0)
+    : 0;
 
-    // Update Holdings
-    const holdingsContainer = document.querySelector(".holdings");
-    if (holdingsContainer) {
-        holdingsContainer.innerHTML = ""; // Clear existing holdings list
+  const dbTotal = Number(data.totalBalance) || 0;
+  console.log('Totals -> dbTotal:', dbTotal, 'computedSumAmounts:', computedSumAmounts);
 
-        if (data.holdings && data.holdings.length > 0) {
-            console.log('Updating holdings UI...');
-            data.holdings.forEach((holding, index) => {
-                console.log(`Rendering holding #${index}:`, holding);
+  // Choose which to display:
+  let displayTotal = dbTotal > 0 ? dbTotal : computedSumAmounts;
 
-                // Defensive check for value
-                let safeValue = (typeof holding.value === "number" && !isNaN(holding.value)) 
-                    ? holding.value.toFixed(4) 
-                    : "0.0000";
+  const totalBalanceEl = document.getElementById('total-balance');
+  if (totalBalanceEl) {
+    totalBalanceEl.textContent = `$${displayTotal.toFixed(2)}`;
+  } else {
+    console.error('total-balance element not found');
+  }
 
-                const holdingElement = document.createElement("div");
-                holdingElement.classList.add("holding");
-                holdingElement.innerHTML = `
-                    <h4>${holding.name} (${holding.symbol})</h4>
-                    <p>Amount: ${holding.amount}</p>
-                    <p>Value: $${safeValue}</p>
-                `;
-                holdingsContainer.appendChild(holdingElement);
-            });
-        } else {
-            console.log('No holdings available for user.');
-            holdingsContainer.innerHTML = `<p>No holdings available.</p>`;
-        }
-    } else {
-        console.error("❌ holdings container not found in DOM");
-    }
+  // Render holdings
+  const holdingsContainer = document.querySelector('.holdings');
+  if (!holdingsContainer) {
+    console.error('holdings container not found');
+    return;
+  }
+  holdingsContainer.innerHTML = '';
+
+  if (data.holdings && data.holdings.length > 0) {
+    data.holdings.forEach(h => {
+      const amt = Number(h.amount) || 0;   // USD total
+      const val = Number(h.value) || 0;   // per-unit
+
+      const el = document.createElement('div');
+      el.classList.add('holding');
+      el.innerHTML = `
+        <h4>${h.name} (${h.symbol})</h4>
+        <p>Amount: $${amt.toFixed(2)}</p>
+        <p>Per-unit: ${val}</p>
+      `;
+      holdingsContainer.appendChild(el);
+    });
+  } else {
+    holdingsContainer.innerHTML = '<p>No holdings available.</p>';
+  }
 }
+
 
 
 

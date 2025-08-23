@@ -508,45 +508,71 @@ app.get('/user-info', async (req, res) => {
 
 // Fetch Holdings for a User by UID
 app.get('/admin/user-holdings/:uid', authenticateJWT, async (req, res) => {
-    const { uid } = req.params;  
+  const { uid } = req.params;
+  try {
+    const user = await User.findOne({ uid });
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    try {
-        
-        const user = await User.findOne({ uid: uid });
+    // Defensive: ensure holdings array exists
+    const holdings = Array.isArray(user.holdings) ? user.holdings : [];
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+    // Compute sum of amounts (amount is USD total per your spec)
+    const sumAmounts = holdings.reduce((s, h) => {
+      const amt = Number(h.amount);
+      return s + (isNaN(amt) ? 0 : amt);
+    }, 0);
 
-        res.json({
-            fullName: user.fullName,
-            email: user.email,
-            username: user.username,
-            holdings: user.holdings   
-        });
-
-    } catch (error) {
-        console.error('Error fetching user holdings:', error);
-        res.status(500).json({ message: 'Server error occurred' });
-    }
+    res.json({
+      fullName: user.fullName,
+      email: user.email,
+      username: user.username,
+      holdings,
+      totalBalance: Number(user.totalBalance) || 0,
+      computedTotal_sumAmounts: sumAmounts
+    });
+  } catch (error) {
+    console.error('Error fetching user holdings:', error);
+    res.status(500).json({ message: 'Server error occurred' });
+  }
 });
 
 //route to add new holding
 
+// server.js — admin: add holding (server computes totalBalance)
 app.post('/admin/add-holding', authenticateJWT, async (req, res) => {
+  try {
     const { uid, name, symbol, amount, value } = req.body;
-    try {
-        const user = await User.findOne({ uid });
-        if (!user) return res.status(404).json({ message: 'User not found' });
-
-        user.holdings.push({ name, symbol, amount, value });
-        await user.save();
-        res.json({ message: 'Holding added successfully', holdings: user.holdings });
-    } catch (error) {
-        console.error('Error adding holding:', error);
-        res.status(500).json({ message: 'Server error' });
+    if (!uid || !name || !symbol || amount == null || value == null) {
+      return res.status(400).json({ message: 'Missing required fields' });
     }
+
+    const user = await User.findOne({ uid });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Per your spec: amount is USD total (e.g. 100), value is per-unit (e.g. 0.005)
+    const amtNum = Number(amount);
+    const valNum = Number(value);
+
+    user.holdings.push({
+      name,
+      symbol,
+      amount: isNaN(amtNum) ? 0 : amtNum,
+      value: isNaN(valNum) ? 0 : valNum
+    });
+
+    // Recompute user's totalBalance as sum of holding.amount (USD)
+    const newTotal = user.holdings.reduce((s, h) => s + (Number(h.amount) || 0), 0);
+    user.totalBalance = newTotal;
+
+    await user.save();
+
+    res.json({ message: 'Holding added successfully', holdings: user.holdings, totalBalance: user.totalBalance });
+  } catch (error) {
+    console.error('Error adding holding:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
+
 
 
 // Update user's total balance
@@ -568,28 +594,36 @@ app.put('/admin/user-balance/:uid', async (req, res) => {
 
 
 // Backend route to get user portfolio
+// server.js — user portfolio
 app.get('/portfolio', authenticateJWT, async (req, res) => {
   try {
-      console.log('Incoming request to /portfolio');
-      console.log('Decoded User:', req.user); // Log user from JWT
+    console.log('Incoming request to /portfolio for user id:', req.user.id);
 
-      const user = await User.findById(req.user.id);
-      if (!user) {
-          console.log('User not found in the database');
-          return res.status(404).json({ message: 'User not found' });
-      }
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-      console.log('Fetched user from database:', user);
+    const holdings = Array.isArray(user.holdings) ? user.holdings : [];
 
-      res.json({
-          totalBalance: user.totalBalance,   
-          holdings: user.holdings            
-      });
+    // computedTotal_sumAmounts: sum of holding.amount (USD)
+    const computedTotal_sumAmounts = holdings.reduce((s, h) => {
+      const amt = Number(h.amount);
+      return s + (isNaN(amt) ? 0 : amt);
+    }, 0);
+
+    const dbTotal = Number(user.totalBalance) || 0;
+
+    // respond with both DB and computed totals for debugging
+    res.json({
+      totalBalance: dbTotal,
+      computedTotal_sumAmounts,
+      holdings
+    });
   } catch (error) {
-      console.error('Error fetching portfolio:', error);
-      res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching portfolio:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
 // Nodemailer setup for sending emails
