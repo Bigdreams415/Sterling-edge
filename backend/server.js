@@ -39,12 +39,18 @@ app.use(bodyParser.json());
 
 // Cors for production
 
-// Allow specific origin
+// ✅ Apply CORS first
 app.use(cors({
-  origin: 'https://sterling-edge-trade.vercel.app',  
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: 'https://sterling-edge-trade.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
+
+// ✅ Handle preflight requests
+app.options('*', cors());
+
+app.use(express.json());
 
 
 //Mongodb conig and connect
