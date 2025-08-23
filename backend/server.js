@@ -620,6 +620,138 @@ app.get('/portfolio', authenticateJWT, async (req, res) => {
   }
 });
 
+//Route to generate pin
+const SALT_ROUNDS = 10; // Adjust the salt rounds for encryption strength
+
+
+// Generate PIN API
+
+app.post('/admin/generate-pin', authenticateJWT, async (req, res) => {
+  const { pinLength, expirationTime } = req.body;
+
+  console.log("===== BACKEND LOGS =====");
+  console.log("Received pinLength (from frontend):", pinLength);
+  console.log("Received expirationTime (from frontend):", expirationTime);
+
+  try {
+    // Validate input
+    if (![4, 6].includes(pinLength)) {
+      console.error("Error: PIN length must be 4 or 6 digits.");
+      return res.status(400).json({ message: 'PIN length must be 4 or 6 digits' });
+    }
+
+    if (!expirationTime || isNaN(expirationTime)) {
+      console.error("Error: Valid expiration time is required.");
+      return res.status(400).json({ message: 'Valid expiration time is required' });
+    }
+
+    // Generate random PIN
+    const rawPin = Array(pinLength)
+      .fill(0)
+      .map(() => Math.floor(Math.random() * 10))
+      .join(''); // Generate a random 4 or 6-digit PIN
+    console.log("Generated raw PIN:", rawPin);
+
+    // Encrypt the PIN
+    const encryptedPin = await bcrypt.hash(rawPin, SALT_ROUNDS);
+    console.log("Encrypted PIN:", encryptedPin);
+
+    // Calculate expiration timestamp
+    const expirationAt = new Date(Date.now() + expirationTime * 60 * 1000); // Convert minutes to milliseconds
+    console.log("Calculated expirationAt (timestamp):", expirationAt);
+
+    // Save the PIN to the database
+    const pin = new Pin({
+      pinCode: encryptedPin,
+      expirationAt,
+    });
+
+    await pin.save();
+    console.log("PIN saved to database successfully.");
+
+    // Return the raw PIN and expiration details to the admin
+    res.status(200).json({
+      message: 'PIN generated successfully',
+      pin: rawPin, // Send the raw PIN to the admin
+      expirationAt,
+    });
+  } catch (error) {
+    console.error("Error generating PIN:", error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Schedule job to run every minute
+cron.schedule('* * * * *', async () => {
+  console.log('Running background job to expire PINs...');
+  try {
+      const result = await Pin.updateMany(
+          { status: 'active', expirationAt: { $lt: new Date() } },
+          { status: 'expired' }
+      );
+
+      if (result.modifiedCount > 0) {
+          console.log(`${result.modifiedCount} PIN(s) marked as expired.`);
+      } else {
+          console.log('No PINs to expire at this time.');
+      }
+  } catch (error) {
+      console.error('Error expiring PINs:', error);
+  }
+});
+
+// Verify PIN Route
+app.post('/verify-pin', async (req, res) => {
+  const { pin } = req.body;
+
+  // Validate PIN input
+  if (!pin || (pin.length !== 4 && pin.length !== 6)) {
+    return res.status(400).json({ message: 'Invalid PIN format. PIN must be 4 or 6 digits.' });
+  }
+
+  try {
+    // Search for the PIN in the database (regardless of status or expiration)
+    const pinRecords = await Pin.find({});  
+
+    let pinMatch = null;
+    for (const record of pinRecords) {
+      const isMatch = await bcrypt.compare(pin, record.pinCode);
+      if (isMatch) {
+        pinMatch = record;
+        break;
+      }
+    }
+
+    if (!pinMatch) {
+      // PIN does not exist in the database
+      return res.status(400).json({ message: 'Invalid PIN. Please try again.' });
+    }
+
+    // Check if the PIN is expired
+    if (pinMatch.expirationAt < new Date() || pinMatch.status === 'expired') {
+      return res.status(404).json({ message: 'PIN expired. Please request a new PIN.' });
+    }
+
+    // PIN is valid and active
+    return res.status(200).json({
+      message: 'Transaction approved! The money is on its way to your bank.',
+    });
+  } catch (error) {
+    console.error('Error verifying PIN:', error);
+    return res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
+});6
+
+// Route to delete all pins
+app.delete('/admin/pins', authenticateJWT, async (req, res) => {
+  try {
+      await Pin.deleteMany({}); // Delete all pins from the database
+      res.status(200).json({ message: 'All pins have been successfully deleted.' });
+  } catch (error) {
+      console.error('Error deleting pins:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 // Nodemailer setup for sending emails
