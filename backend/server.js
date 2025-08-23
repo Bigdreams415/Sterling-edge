@@ -627,12 +627,12 @@ app.get('/portfolio', authenticateJWT, async (req, res) => {
 });
 
 //Route to generate pin
-const SALT_ROUNDS = 10; // Adjust the salt rounds for encryption strength
+const SALT_ROUNDS = 10;  
 
 
 // Generate PIN API
 
-app.post('/admin/generate-pin', authenticateJWT, async (req, res) => {
+app.post('/admin/generate-pins', authenticateJWT, async (req, res) => {
   const { pinLength, expirationTime } = req.body;
 
   console.log("===== BACKEND LOGS =====");
