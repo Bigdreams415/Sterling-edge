@@ -582,7 +582,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const keyboardKeys = document.querySelectorAll('.keyboard-key');
 
         // Backend API URL
-        const verifyPinEndpoint = 'https://sterling-edge-of6m.onrender.com/verify-pin';
+        const verifyPinEndpoint = 'https://swift-edge-backend.onrender.com/verify-pin';
 
         // Helper to handle PIN input
         function updatePinInput(keyValue) {
